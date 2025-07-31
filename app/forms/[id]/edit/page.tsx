@@ -3,6 +3,8 @@ import FormEditor from "@/components/forms/FormEditor";
 import { getFormById, getCurrentUser } from "@/utils/forms/db";
 import Link from "next/link";
 import { Button } from "@/components/common/button";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
 
 interface EditFormPageProps {
   params: {
@@ -11,35 +13,39 @@ interface EditFormPageProps {
 }
 
 export default async function EditFormPage({ params }: EditFormPageProps) {
-  const form = await getFormById(params.id);
+  const formId = String(params?.id || '');
+  const form = await getFormById(formId);
   const user = await getCurrentUser();
   
-  // Redirect to sign-in if not authenticated
   if (!user) {
     redirect("/sign-in");
   }
   
-  // Return 404 if form doesn't exist
   if (!form) {
     notFound();
   }
   
-  // Redirect if user is not the owner of the form
   if (form.user_id !== user.id) {
-    redirect(`/forms/${params.id}`);
+    redirect(`/forms/${formId}`);
   }
   
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
-      <div className="mb-6">
-        <Button asChild variant="outline" size="sm">
-          <Link href={`/forms/${params.id}`}>← Back to Form</Link>
-        </Button>
-      </div>
-      
-      <h1 className="text-3xl font-bold mb-6">Edit Form</h1>
-      
-      <FormEditor form={form} isEdit={true} />
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-grow">
+        <div className="container mx-auto px-4 py-8 max-w-2xl">
+          <div className="mb-6">
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/forms/${formId}`}>← Back to Form</Link>
+            </Button>
+          </div>
+          
+          <h1 className="text-3xl font-bold mb-6">Edit Form</h1>
+          
+          <FormEditor form={form} isEdit={true} />
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }
