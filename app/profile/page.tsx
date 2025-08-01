@@ -7,6 +7,10 @@ import { getCurrentUser } from "@/utils/gallery/db";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import Loading from "@/components/ui/Loading";
+import { Instagram, Github } from "lucide-react";
+import { FaTiktok, FaYoutube, FaSteam, FaTwitch } from "react-icons/fa";
+import { SiKick } from "react-icons/si";
 
 interface UserProfile {
   id: string;
@@ -16,17 +20,20 @@ interface UserProfile {
     full_name?: string;
     avatar_url?: string;
     bio?: string;
-    location?: string;
-    social_url1?: string;
-    social_name1?: string;
-    social_url2?: string;
-    social_name2?: string;
+    social_instagram?: string;
+    social_github?: string;
+    social_tiktok?: string;
+    social_youtube?: string;
+    social_steam?: string;
+    social_kick?: string;
+    social_twitch?: string;
     banner_url?: string;
   };
 }
 
 export default function ProfilePage() {
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   
@@ -42,7 +49,15 @@ export default function ProfilePage() {
           return;
         }
         
+        // Also fetch the user's profile from the profiles table
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        
         setUser(user as UserProfile);
+        setProfile(profileData);
       } catch (error) {
         console.error("Error loading user profile:", error);
       } finally {
@@ -54,11 +69,7 @@ export default function ProfilePage() {
   }, [router]);
   
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0ed632]"></div>
-      </div>
-    );
+    return <Loading />;
   }
   
   if (!user) {
@@ -98,22 +109,16 @@ export default function ProfilePage() {
     switch (platform) {
       case 'Instagram':
         return `https://instagram.com/${username}`;
-      case 'Twitter':
-        return `https://twitter.com/${username}`;
-      case 'Facebook':
-        return `https://facebook.com/${username}`;
-      case 'LinkedIn':
-        return `https://linkedin.com/in/${username}`;
       case 'GitHub':
         return `https://github.com/${username}`;
       case 'YouTube':
-        return `https://youtube.com/@${username}`;
+        return `https://youtube.com/c/${username}`;
       case 'TikTok':
         return `https://tiktok.com/@${username}`;
-      case 'Pinterest':
-        return `https://pinterest.com/${username}`;
-      case 'Reddit':
-        return `https://reddit.com/user/${username}`;
+      case 'Steam':
+        return `https://steamcommunity.com/id/${username}`;
+      case 'Kick':
+        return `https://kick.com/${username}`;
       case 'Twitch':
         return `https://twitch.tv/${username}`;
       default:
@@ -128,9 +133,10 @@ export default function ProfilePage() {
         {/* Banner Image */}
         <div className="bg-white shadow-lg rounded-xl overflow-hidden">
           <div className="h-64 bg-gray-100 relative overflow-hidden">
-            {user.user_metadata?.banner_url ? (
+            {/* Use profile.banner_url first, then fall back to user metadata */}
+            {(profile?.banner_url || user?.user_metadata?.banner_url) ? (
               <img 
-                src={user.user_metadata.banner_url} 
+                src={profile?.banner_url || user?.user_metadata?.banner_url} 
                 alt="Profile banner" 
                 className="w-full h-full object-cover"
               />
@@ -210,70 +216,168 @@ export default function ProfilePage() {
                 </p>
               </div>
               
-              {/* Contact & Social Info */}
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Location */}
-                <div className="flex items-start gap-3">
-                  <div className="bg-gray-100 p-2 rounded-full">
-                    <svg className="w-5 h-5 text-[#0ed632]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Location</h3>
-                    <p className="text-gray-800">
-                      {user.user_metadata?.location || <span className="text-gray-400 italic">Not specified</span>}
-                    </p>
-                  </div>
-                </div>
+              {/* Social Media Links */}
+              <div className="mt-6">
+                <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-[#0ed632]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                  </svg>
+                  Social Media
+                </h2>
                 
-                {/* Social Link 1 */}
-                <div className="flex items-start gap-3">
-                  <div className="bg-gray-100 p-2 rounded-full">
-                    <svg className="w-5 h-5 text-[#0ed632]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Social Media</h3>
-                    {user.user_metadata?.social_name1 ? (
-                      <a 
-                        href={getSocialMediaUrl(user.user_metadata.social_name1, user.user_metadata.social_url1 || '')}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[#0ed632] hover:underline inline-block"
-                      >
-                        {user.user_metadata.social_name1}
-                      </a>
-                    ) : (
-                      <p className="text-gray-400 italic">Not provided</p>
-                    )}
-                  </div>
-                </div>
-                
-                {/* Social Link 2 */}
-                <div className="flex items-start gap-3">
-                  <div className="bg-gray-100 p-2 rounded-full">
-                    <svg className="w-5 h-5 text-[#0ed632]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Social Media</h3>
-                    {user.user_metadata?.social_name2 ? (
-                      <a 
-                        href={getSocialMediaUrl(user.user_metadata.social_name2, user.user_metadata.social_url2 || '')}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[#0ed632] hover:underline inline-block"
-                      >
-                        {user.user_metadata.social_name2}
-                      </a>
-                    ) : (
-                      <p className="text-gray-400 italic">Not provided</p>
-                    )}
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Instagram */}
+                  {user.user_metadata?.social_instagram && (
+                    <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                      <div className="bg-pink-50 p-2 rounded-full">
+                        <Instagram className="h-5 w-5 text-pink-500" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium">Instagram</h3>
+                        <a 
+                          href={getSocialMediaUrl('Instagram', user.user_metadata.social_instagram)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#0ed632] hover:underline text-sm"
+                        >
+                          @{user.user_metadata.social_instagram}
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* GitHub */}
+                  {user.user_metadata?.social_github && (
+                    <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                      <div className="bg-gray-200 p-2 rounded-full">
+                        <Github className="h-5 w-5 text-gray-700" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium">GitHub</h3>
+                        <a 
+                          href={getSocialMediaUrl('GitHub', user.user_metadata.social_github)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#0ed632] hover:underline text-sm"
+                        >
+                          @{user.user_metadata.social_github}
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* TikTok */}
+                  {user.user_metadata?.social_tiktok && (
+                    <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                      <div className="bg-black p-2 rounded-full">
+                        <FaTiktok className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium">TikTok</h3>
+                        <a 
+                          href={getSocialMediaUrl('TikTok', user.user_metadata.social_tiktok)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#0ed632] hover:underline text-sm"
+                        >
+                          @{user.user_metadata.social_tiktok}
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* YouTube */}
+                  {user.user_metadata?.social_youtube && (
+                    <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                      <div className="bg-red-100 p-2 rounded-full">
+                        <FaYoutube className="h-5 w-5 text-red-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium">YouTube</h3>
+                        <a 
+                          href={getSocialMediaUrl('YouTube', user.user_metadata.social_youtube)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#0ed632] hover:underline text-sm"
+                        >
+                          {user.user_metadata.social_youtube}
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Steam */}
+                  {user.user_metadata?.social_steam && (
+                    <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                      <div className="bg-blue-100 p-2 rounded-full">
+                        <FaSteam className="h-5 w-5 text-blue-800" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium">Steam</h3>
+                        <a 
+                          href={getSocialMediaUrl('Steam', user.user_metadata.social_steam)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#0ed632] hover:underline text-sm"
+                        >
+                          {user.user_metadata.social_steam}
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Kick */}
+                  {user.user_metadata?.social_kick && (
+                    <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                      <div className="bg-green-100 p-2 rounded-full">
+                        <SiKick className="h-5 w-5 text-green-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium">Kick</h3>
+                        <a 
+                          href={getSocialMediaUrl('Kick', user.user_metadata.social_kick)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#0ed632] hover:underline text-sm"
+                        >
+                          {user.user_metadata.social_kick}
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Twitch */}
+                  {user.user_metadata?.social_twitch && (
+                    <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                      <div className="bg-purple-100 p-2 rounded-full">
+                        <FaTwitch className="h-5 w-5 text-purple-700" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium">Twitch</h3>
+                        <a 
+                          href={getSocialMediaUrl('Twitch', user.user_metadata.social_twitch)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#0ed632] hover:underline text-sm"
+                        >
+                          {user.user_metadata.social_twitch}
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Show message if no social media */}
+                  {!user.user_metadata?.social_instagram && 
+                   !user.user_metadata?.social_github && 
+                   !user.user_metadata?.social_tiktok && 
+                   !user.user_metadata?.social_youtube && 
+                   !user.user_metadata?.social_steam && 
+                   !user.user_metadata?.social_kick && 
+                   !user.user_metadata?.social_twitch && (
+                    <div className="col-span-2 text-center py-6 text-gray-500 italic">
+                      No social media links provided
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

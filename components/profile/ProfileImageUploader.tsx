@@ -109,9 +109,13 @@ export default function ProfileImageUploader({
       // Update user profile with the new image URL
       const fieldName = type === "avatar" ? "avatar_url" : "banner_url";
       
+      // Get the secure URL from Cloudinary
+      const secureUrl = cloudinaryResponse.secure_url;
+      
+      // Update auth.users metadata
       const { error: updateError } = await supabaseClient.auth.updateUser({
         data: {
-          [fieldName]: cloudinaryResponse.secure_url
+          [fieldName]: secureUrl
         }
       });
       
@@ -119,11 +123,31 @@ export default function ProfileImageUploader({
         throw updateError;
       }
       
+      // Also update the profiles table to keep it in sync
+      const { data: { user: currentUser } } = await supabaseClient.auth.getUser();
+      
+      if (currentUser) {
+        const { error: profileError } = await supabaseClient
+          .from('profiles')
+          .upsert({
+            id: currentUser.id,
+            [fieldName]: secureUrl
+          }, {
+            onConflict: 'id',
+            ignoreDuplicates: false
+          });
+          
+        if (profileError) {
+          console.error("Error updating profiles table:", profileError);
+          // Continue anyway as the auth update succeeded
+        }
+      }
+      
       // Log the new image upload
-      console.log(`New image uploaded with filename: ${uniqueFilename}`);
+      console.log(`New image uploaded with filename: ${uniqueFilename} and URL: ${secureUrl}`);
       
       // Call the callback with the new URL
-      onImageUploaded(cloudinaryResponse.secure_url);
+      onImageUploaded(secureUrl);
       
     } catch (err: any) {
       setError(err.message || "Failed to upload image");

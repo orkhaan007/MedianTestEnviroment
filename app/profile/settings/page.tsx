@@ -7,6 +7,7 @@ import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ProfileImageUploader from "@/components/profile/ProfileImageUploader";
+import Loading from "@/components/ui/Loading";
 
 interface UserData {
   email: string;
@@ -14,11 +15,13 @@ interface UserData {
     full_name?: string;
     avatar_url?: string;
     bio?: string;
-    location?: string;
-    social_url1?: string;
-    social_name1?: string;
-    social_url2?: string;
-    social_name2?: string;
+    social_instagram?: string;
+    social_github?: string;
+    social_tiktok?: string;
+    social_youtube?: string;
+    social_steam?: string;
+    social_kick?: string;
+    social_twitch?: string;
     banner_url?: string;
   };
 }
@@ -31,11 +34,13 @@ interface UserProfile {
     full_name?: string;
     avatar_url?: string;
     bio?: string;
-    location?: string;
-    social_url1?: string;
-    social_name1?: string;
-    social_url2?: string;
-    social_name2?: string;
+    social_instagram?: string;
+    social_github?: string;
+    social_tiktok?: string;
+    social_youtube?: string;
+    social_steam?: string;
+    social_kick?: string;
+    social_twitch?: string;
     banner_url?: string;
   };
 }
@@ -46,99 +51,164 @@ export default function ProfileSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const router = useRouter();
-  
+
   // Form state
   const [fullName, setFullName] = useState('');
-  const [location, setLocation] = useState('');
   const [bio, setBio] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [bannerUrl, setBannerUrl] = useState('');
-  const [socialUrl1, setSocialUrl1] = useState('');
-  const [socialName1, setSocialName1] = useState('');
-  const [socialUrl2, setSocialUrl2] = useState('');
-  const [socialName2, setSocialName2] = useState('');
-  
+  const [socialInstagram, setSocialInstagram] = useState('');
+  const [socialGithub, setSocialGithub] = useState('');
+  const [socialTiktok, setSocialTiktok] = useState('');
+  const [socialYoutube, setSocialYoutube] = useState('');
+  const [socialSteam, setSocialSteam] = useState('');
+  const [socialKick, setSocialKick] = useState('');
+  const [socialTwitch, setSocialTwitch] = useState('');
+
   useEffect(() => {
     async function loadUserProfile() {
       try {
         setLoading(true);
         const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
-        
+
         if (!user) {
           router.push("/sign-in");
           return;
         }
-        
-        setUser(user as UserProfile);
-        
-        // Initialize form with user data
-        setFullName(user.user_metadata?.full_name || '');
-        setLocation(user.user_metadata?.location || '');
-        setBio(user.user_metadata?.bio || '');
-        setAvatarUrl(user.user_metadata?.avatar_url || '');
-        setBannerUrl(user.user_metadata?.banner_url || '');
-        setSocialUrl1(user.user_metadata?.social_url1 || '');
-        setSocialName1(user.user_metadata?.social_name1 || '');
-        setSocialUrl2(user.user_metadata?.social_url2 || '');
-        setSocialName2(user.user_metadata?.social_name2 || '');
+
+        // Also fetch the user's profile from the profiles table
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        setUser({ ...user, ...profile } as UserProfile);
+
+        // Initialize form with user data - prefer profile data over user metadata when available
+        setFullName(profile?.full_name || user.user_metadata?.full_name || '');
+        setBio(profile?.bio || user.user_metadata?.bio || '');
+        setAvatarUrl(profile?.avatar_url || user.user_metadata?.avatar_url || '');
+        setBannerUrl(profile?.banner_url || user.user_metadata?.banner_url || '');
+        setSocialInstagram(profile?.social_instagram || user.user_metadata?.social_instagram || '');
+        setSocialGithub(profile?.social_github || user.user_metadata?.social_github || '');
+        setSocialTiktok(profile?.social_tiktok || user.user_metadata?.social_tiktok || '');
+        setSocialYoutube(profile?.social_youtube || user.user_metadata?.social_youtube || '');
+        setSocialSteam(profile?.social_steam || user.user_metadata?.social_steam || '');
+        setSocialKick(profile?.social_kick || user.user_metadata?.social_kick || '');
+        setSocialTwitch(profile?.social_twitch || user.user_metadata?.social_twitch || '');
       } catch (error) {
         console.error("Error loading user profile:", error);
       } finally {
         setLoading(false);
       }
     }
-    
+
     loadUserProfile();
   }, [router]);
-  
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    
+
     if (!user) return;
-    
+
     try {
       setSaving(true);
       setMessage({ type: '', text: '' });
-      
+
       const supabase = createClient();
-      
-      const { error } = await supabase.auth.updateUser({
+
+      // Update user metadata in auth.users table
+      const { error: authError } = await supabase.auth.updateUser({
         data: {
           full_name: fullName,
-          location,
           bio,
           avatar_url: avatarUrl,
           banner_url: bannerUrl,
-          social_url1: socialUrl1,
-          social_name1: socialName1,
-          social_url2: socialUrl2,
-          social_name2: socialName2
+          social_instagram: socialInstagram,
+          social_github: socialGithub,
+          social_tiktok: socialTiktok,
+          social_youtube: socialYoutube,
+          social_steam: socialSteam,
+          social_kick: socialKick,
+          social_twitch: socialTwitch
         }
       });
-      
-      if (error) {
-        throw error;
+
+      if (authError) {
+        throw authError;
       }
+
+      // Also update the profiles table to keep it in sync
+      // First check if the user exists in the profiles table
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      // Prepare the profile data with only fields that exist in the profiles table
+      // Use a Record type to allow dynamic property assignment
+      const profileData: Record<string, any> = {
+        id: user.id,
+        full_name: fullName,
+        bio,
+        avatar_url: avatarUrl,
+        banner_url: bannerUrl, // Store banner URL in the profiles table
+        social_instagram: socialInstagram,
+        social_github: socialGithub
+      };
       
-      setMessage({ 
-        type: 'success', 
-        text: 'Profile updated successfully!' 
-      });
-      
+      // Add the new social media fields if they exist in the profiles table
+      // (based on our SQL migration script)
+      if (existingProfile) {
+        // Only add fields that already exist in the profile
+        if ('social_tiktok' in existingProfile) {
+          profileData.social_tiktok = socialTiktok;
+        }
+        if ('social_youtube' in existingProfile) {
+          profileData.social_youtube = socialYoutube;
+        }
+        if ('social_steam' in existingProfile) {
+          profileData.social_steam = socialSteam;
+        }
+        if ('social_kick' in existingProfile) {
+          profileData.social_kick = socialKick;
+        }
+        if ('social_twitch' in existingProfile) {
+          profileData.social_twitch = socialTwitch;
+        }
+      } else {
+        // If we can't determine the structure, try a different approach
+        // Try to update just the basic fields that are most likely to exist
+        console.log("No existing profile found, using minimal fields for update");
+      }
+
+      // Use upsert with on_conflict parameter to specify which fields to update
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert(profileData, {
+          onConflict: 'id',
+          ignoreDuplicates: false
+        });
+
+      if (profileError) {
+        console.error("Error updating profiles table:", profileError);
+        // Continue execution even if profiles update fails
+      }
+
+      setMessage({ type: 'success', text: 'Profile updated successfully!' });
+
       // Refresh user data
       const { data: { user: updatedUser } } = await supabase.auth.getUser();
       setUser(updatedUser as UserProfile);
-      
     } catch (error: any) {
       console.error("Error updating profile:", error);
-      setMessage({ 
-        type: 'error', 
-        text: error.message || 'Failed to update profile. Please try again.' 
-      });
+      setMessage({ type: 'error', text: error.message || 'Failed to update profile. Please try again.' });
     } finally {
       setSaving(false);
-      
+
       // Clear success message after 3 seconds
       if (message.type === 'success') {
         setTimeout(() => {
@@ -147,20 +217,16 @@ export default function ProfileSettingsPage() {
       }
     }
   };
-  
+
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0ed632]"></div>
-      </div>
-    );
+    return <Loading />;
   }
-  
+
   if (!user) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
         <h1 className="text-2xl font-bold mb-4">You need to sign in to edit your profile</h1>
-        <Link 
+        <Link
           href="/sign-in"
           className="px-4 py-2 bg-[#0ed632] text-white rounded hover:bg-[#0bc52d] transition-colors"
         >
@@ -169,7 +235,7 @@ export default function ProfileSettingsPage() {
       </div>
     );
   }
-  
+
   return (
     <>
       <Header />
@@ -184,11 +250,11 @@ export default function ProfileSettingsPage() {
               onImageUploaded={(url) => setBannerUrl(url)}
               className="w-full h-full"
             />
-            
+
             {/* Title and Back Button */}
             <div className="absolute inset-x-0 top-0 flex items-center justify-between px-8 py-4">
               <h1 className="text-3xl font-bold text-white drop-shadow-lg">Edit Profile</h1>
-              <Link 
+              <Link
                 href="/profile"
                 className="px-4 py-2 bg-white text-[#0ed632] font-medium rounded-full shadow-md hover:shadow-lg transition-all flex items-center gap-2"
               >
@@ -199,7 +265,7 @@ export default function ProfileSettingsPage() {
               </Link>
             </div>
           </div>
-          
+
           {/* Profile Content */}
           <div className="px-8 py-6 relative">
             {/* Avatar */}
@@ -213,16 +279,16 @@ export default function ProfileSettingsPage() {
                 />
               </div>
             </div>
-            
+
             <div className="mt-16">
             </div>
           </div>
         </div>
-        
+
         {/* Main content */}
         <div className="bg-white shadow-lg rounded-xl overflow-hidden">
           <div className="px-8 py-6">
-          
+
           {message.text && (
             <div className={`mb-6 p-3 rounded ${
               message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
@@ -230,7 +296,7 @@ export default function ProfileSettingsPage() {
               {message.text}
             </div>
           )}
-          
+
           <form onSubmit={handleSubmit}>
             {/* Form Sections */}
             <div className="space-y-8">
@@ -242,7 +308,7 @@ export default function ProfileSettingsPage() {
                   </svg>
                   Personal Information
                 </h2>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Email */}
                   <div>
@@ -258,7 +324,7 @@ export default function ProfileSettingsPage() {
                     />
                     <p className="mt-1 text-xs text-gray-500">Email cannot be changed</p>
                   </div>
-                  
+
                   {/* Full Name */}
                   <div>
                     <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
@@ -272,30 +338,9 @@ export default function ProfileSettingsPage() {
                       className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#0ed632] focus:border-[#0ed632]"
                     />
                   </div>
-                  
-                  {/* Location */}
-                  <div>
-                    <label htmlFor="location" className="block text-sm font-medium text-gray-700">
-                      Location
-                    </label>
-                    <div className="mt-1 relative rounded-md shadow-sm">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
-                      </div>
-                      <input
-                        type="text"
-                        id="location"
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
-                        placeholder="City, Country"
-                        className="block w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#0ed632] focus:border-[#0ed632]"
-                      />
-                    </div>
-                  </div>
-                  
+
+
+
                   {/* Bio */}
                   <div className="md:col-span-2">
                     <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
@@ -312,7 +357,7 @@ export default function ProfileSettingsPage() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Social Media Section */}
               <div className="bg-gray-50 p-6 rounded-lg">
                 <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
@@ -321,90 +366,135 @@ export default function ProfileSettingsPage() {
                   </svg>
                   Social Media
                 </h2>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Social Media 1 */}
-                  <div className="space-y-4">
-                    <div>
-                      <label htmlFor="socialName1" className="block text-sm font-medium text-gray-700">
-                        Platform Name
-                      </label>
-                      <select
-                        id="socialName1"
-                        value={socialName1}
-                        onChange={(e) => setSocialName1(e.target.value)}
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#0ed632] focus:border-[#0ed632]"
-                      >
-                        <option value="">Select a platform</option>
-                        <option value="Instagram">Instagram</option>
-                        <option value="Twitter">Twitter</option>
-                        <option value="Facebook">Facebook</option>
-                        <option value="LinkedIn">LinkedIn</option>
-                        <option value="GitHub">GitHub</option>
-                        <option value="YouTube">YouTube</option>
-                        <option value="TikTok">TikTok</option>
-                        <option value="Pinterest">Pinterest</option>
-                        <option value="Reddit">Reddit</option>
-                        <option value="Twitch">Twitch</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label htmlFor="socialUrl1" className="block text-sm font-medium text-gray-700">
-                        URL or Username
-                      </label>
+                  {/* TikTok */}
+                  <div>
+                    <label htmlFor="socialTiktok" className="block text-sm font-medium text-gray-700">
+                      TikTok URL
+                    </label>
+                    <div className="mt-1 relative rounded-md shadow-sm">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-gray-500 sm:text-sm">@</span>
+                      </div>
                       <input
                         type="text"
-                        id="socialUrl1"
-                        value={socialUrl1}
-                        onChange={(e) => setSocialUrl1(e.target.value)}
-                        placeholder="URL or username"
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#0ed632] focus:border-[#0ed632]"
+                        id="socialTiktok"
+                        value={socialTiktok}
+                        onChange={(e) => setSocialTiktok(e.target.value)}
+                        placeholder="username or full URL"
+                        className="block w-full pl-8 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#0ed632] focus:border-[#0ed632]"
                       />
                     </div>
                   </div>
-                  
-                  {/* Social Media 2 */}
-                  <div className="space-y-4">
-                    <div>
-                      <label htmlFor="socialName2" className="block text-sm font-medium text-gray-700">
-                        Platform Name
-                      </label>
-                      <select
-                        id="socialName2"
-                        value={socialName2}
-                        onChange={(e) => setSocialName2(e.target.value)}
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#0ed632] focus:border-[#0ed632]"
-                      >
-                        <option value="">Select a platform</option>
-                        <option value="Instagram">Instagram</option>
-                        <option value="Twitter">Twitter</option>
-                        <option value="Facebook">Facebook</option>
-                        <option value="LinkedIn">LinkedIn</option>
-                        <option value="GitHub">GitHub</option>
-                        <option value="YouTube">YouTube</option>
-                        <option value="TikTok">TikTok</option>
-                        <option value="Pinterest">Pinterest</option>
-                        <option value="Reddit">Reddit</option>
-                        <option value="Twitch">Twitch</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label htmlFor="socialUrl2" className="block text-sm font-medium text-gray-700">
-                        URL or Username
-                      </label>
+
+                  {/* Instagram */}
+                  <div>
+                    <label htmlFor="socialInstagram" className="block text-sm font-medium text-gray-700">
+                      Instagram URL
+                    </label>
+                    <div className="mt-1 relative rounded-md shadow-sm">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-gray-500 sm:text-sm">@</span>
+                      </div>
                       <input
                         type="text"
-                        id="socialUrl2"
-                        value={socialUrl2}
-                        onChange={(e) => setSocialUrl2(e.target.value)}
-                        placeholder="URL or username"
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#0ed632] focus:border-[#0ed632]"
+                        id="socialInstagram"
+                        value={socialInstagram}
+                        onChange={(e) => setSocialInstagram(e.target.value)}
+                        placeholder="username or full URL"
+                        className="block w-full pl-8 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#0ed632] focus:border-[#0ed632]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* YouTube */}
+                  <div>
+                    <label htmlFor="socialYoutube" className="block text-sm font-medium text-gray-700">
+                      YouTube Channel URL
+                    </label>
+                    <input
+                      type="text"
+                      id="socialYoutube"
+                      value={socialYoutube}
+                      onChange={(e) => setSocialYoutube(e.target.value)}
+                      placeholder="https://youtube.com/c/..."
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#0ed632] focus:border-[#0ed632]"
+                    />
+                  </div>
+
+                  {/* GitHub */}
+                  <div>
+                    <label htmlFor="socialGithub" className="block text-sm font-medium text-gray-700">
+                      GitHub URL
+                    </label>
+                    <div className="mt-1 relative rounded-md shadow-sm">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-gray-500 sm:text-sm">@</span>
+                      </div>
+                      <input
+                        type="text"
+                        id="socialGithub"
+                        value={socialGithub}
+                        onChange={(e) => setSocialGithub(e.target.value)}
+                        placeholder="username or full URL"
+                        className="block w-full pl-8 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#0ed632] focus:border-[#0ed632]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Steam */}
+                  <div>
+                    <label htmlFor="socialSteam" className="block text-sm font-medium text-gray-700">
+                      Steam Profile URL
+                    </label>
+                    <input
+                      type="text"
+                      id="socialSteam"
+                      value={socialSteam}
+                      onChange={(e) => setSocialSteam(e.target.value)}
+                      placeholder="https://steamcommunity.com/id/..."
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#0ed632] focus:border-[#0ed632]"
+                    />
+                  </div>
+
+                  {/* Kick */}
+                  <div>
+                    <label htmlFor="socialKick" className="block text-sm font-medium text-gray-700">
+                      Kick Channel URL
+                    </label>
+                    <input
+                      type="text"
+                      id="socialKick"
+                      value={socialKick}
+                      onChange={(e) => setSocialKick(e.target.value)}
+                      placeholder="https://kick.com/..."
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#0ed632] focus:border-[#0ed632]"
+                    />
+                  </div>
+
+                  {/* Twitch */}
+                  <div>
+                    <label htmlFor="socialTwitch" className="block text-sm font-medium text-gray-700">
+                      Twitch Channel URL
+                    </label>
+                    <div className="mt-1 relative rounded-md shadow-sm">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-gray-500 sm:text-sm">@</span>
+                      </div>
+                      <input
+                        type="text"
+                        id="socialTwitch"
+                        value={socialTwitch}
+                        onChange={(e) => setSocialTwitch(e.target.value)}
+                        placeholder="username or full URL"
+                        className="block w-full pl-8 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#0ed632] focus:border-[#0ed632]"
                       />
                     </div>
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-center justify-between pt-6 border-t border-gray-200">
                 <div>
                   <p className="text-sm text-gray-500 flex items-center gap-2">
