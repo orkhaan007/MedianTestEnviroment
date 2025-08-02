@@ -34,24 +34,18 @@ export default function MediaTabs({
           <h1 className="text-3xl font-bold text-green-800">{pageTitle}</h1>
         </div>
         
-        {currentUser ? (
+        <div className="text-right">
+          <p className="text-sm text-gray-500 mb-2">Admin-only uploads</p>
           <Link 
-            href="/media/upload" 
-            className="bg-[#0ed632] hover:bg-[#0bc52c] text-white py-2 px-4 rounded-md inline-flex items-center transition-colors"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            Upload Media
-          </Link>
-        ) : (
-          <Link 
-            href="/sign-in" 
+            href="/admin/content" 
             className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md inline-flex items-center"
           >
-            Sign in to upload
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Admin Area
           </Link>
-        )}
+        </div>
       </div>
       
       <div className="mb-6 border-b border-gray-200">
@@ -85,19 +79,15 @@ export default function MediaTabs({
               <p className="mt-4 text-xl font-medium text-gray-500">
                 {isMyUploads ? "You haven't uploaded any images yet" : "No images have been shared yet"}
               </p>
-              {currentUser && (
-                <>
-                  <p className="mt-2 text-gray-500">
-                    {isMyUploads ? "Get started by uploading your first image" : "Be the first to share an image"}
-                  </p>
-                  <Link 
-                    href="/media/upload" 
-                    className="mt-6 inline-block bg-[#0ed632] hover:bg-[#0bc52c] text-white py-2 px-6 rounded-md transition-colors"
-                  >
-                    Upload Image
-                  </Link>
-                </>
-              )}
+              <p className="mt-2 text-gray-500">
+                Media uploads are restricted to administrators only
+              </p>
+              <Link 
+                href="/admin/content" 
+                className="mt-6 inline-block bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-md transition-colors"
+              >
+                Go to Admin Area
+              </Link>
             </div>
           ) : (
             <RefreshableGallery 
@@ -118,19 +108,15 @@ export default function MediaTabs({
               <p className="mt-4 text-xl font-medium text-gray-500">
                 {isMyUploads ? "You haven't uploaded any videos yet" : "No videos have been shared yet"}
               </p>
-              {currentUser && (
-                <>
-                  <p className="mt-2 text-gray-500">
-                    {isMyUploads ? "Get started by uploading your first video" : "Be the first to share a video"}
-                  </p>
-                  <Link 
-                    href="/media/upload" 
-                    className="mt-6 inline-block bg-[#0ed632] hover:bg-[#0bc52c] text-white py-2 px-6 rounded-md transition-colors"
-                  >
-                    Upload Video
-                  </Link>
-                </>
-              )}
+              <p className="mt-2 text-gray-500">
+                Media uploads are restricted to administrators only
+              </p>
+              <Link 
+                href="/admin/content" 
+                className="mt-6 inline-block bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-md transition-colors"
+              >
+                Go to Admin Area
+              </Link>
             </div>
           ) : (
             <VideoGallery 

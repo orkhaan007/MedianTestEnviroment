@@ -9,6 +9,8 @@ export interface MediaData {
   user_id: string;
   created_at: string;
   media_type: MediaType;
+  user_details?: any; // For admin view with user profile details
+  profiles?: any; // Raw join data from Supabase
 }
 
 export interface ImageData extends MediaData {}
