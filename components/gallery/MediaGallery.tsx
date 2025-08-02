@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { MediaData } from "@/types/gallery";
-import { deleteMedia } from "@/utils/gallery/db";
 import { formatDate } from "@/utils/date";
 
 interface MediaGalleryProps {
@@ -16,7 +15,6 @@ export default function MediaGallery({ mediaItems, currentUserId, onMediaDeleted
   const filteredMedia = mediaItems.filter(item => item.media_type === 'image');
 
   const [selectedMedia, setSelectedMedia] = useState<MediaData | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleMediaClick = (media: MediaData) => {
@@ -27,26 +25,7 @@ export default function MediaGallery({ mediaItems, currentUserId, onMediaDeleted
     setSelectedMedia(null);
   };
 
-  const handleDelete = async (mediaId: string) => {
-    if (!currentUserId) return;
-    
-    try {
-      setIsDeleting(true);
-      setError(null);
-      
-      await deleteMedia(mediaId, currentUserId);
-      
-      setSelectedMedia(null);
-      if (onMediaDeleted) {
-        onMediaDeleted();
-      }
-    } catch (err) {
-      console.error("Delete error:", err);
-      setError(err instanceof Error ? err.message : "Failed to delete media");
-    } finally {
-      setIsDeleting(false);
-    }
-  };
+
 
 
   useEffect(() => {
@@ -95,9 +74,9 @@ export default function MediaGallery({ mediaItems, currentUserId, onMediaDeleted
                   <h3 className="font-medium text-lg truncate">{media.title || "Untitled Image"}</h3>
                 </div>
                 
-                {media.description && (
-                  <p className="text-gray-600 mt-1 text-sm line-clamp-2">{media.description}</p>
-                )}
+                <p className="text-gray-600 mt-1 text-sm line-clamp-2">
+                  {media.description || "No description"}
+                </p>
                 
                 <div className="mt-2 text-xs text-gray-500">
                   {media.created_at && (
@@ -144,12 +123,10 @@ export default function MediaGallery({ mediaItems, currentUserId, onMediaDeleted
                 />
               </div>
               
-              {selectedMedia.description && (
-                <div className="mt-4">
-                  <h4 className="text-sm font-medium text-gray-700">Description:</h4>
-                  <p className="mt-1 text-gray-600">{selectedMedia.description}</p>
-                </div>
-              )}
+              <div className="mt-4">
+                <h4 className="text-sm font-medium text-gray-700">Description:</h4>
+                <p className="mt-1 text-gray-600">{selectedMedia.description || "No description"}</p>
+              </div>
               
               <div className="mt-4 flex justify-between items-center">
                 <div className="text-sm text-gray-500">

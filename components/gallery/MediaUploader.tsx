@@ -9,10 +9,10 @@ interface MediaUploaderProps {
   userEmail: string;
   userId: string;
   onUploadComplete?: () => void;
-  isAdminUpload?: boolean;
+  isAdminUpload: boolean; // Now required and must be true
 }
 
-export default function MediaUploader({ userEmail, userId, onUploadComplete, isAdminUpload = false }: MediaUploaderProps) {
+export default function MediaUploader({ userEmail, userId, onUploadComplete, isAdminUpload }: MediaUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [title, setTitle] = useState("");
@@ -22,20 +22,10 @@ export default function MediaUploader({ userEmail, userId, onUploadComplete, isA
   const [mediaType, setMediaType] = useState<MediaType>("image");
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [fileInputKey, setFileInputKey] = useState<number>(Date.now());
-  const [isAdmin, setIsAdmin] = useState<boolean>(isAdminUpload);
+  // Always admin-only now
+  const [isAdmin] = useState<boolean>(true);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  // Check admin status on component mount if not already set
-  useState(() => {
-    if (!isAdminUpload) {
-      const checkAdminStatus = async () => {
-        const adminStatus = await checkIsAdmin();
-        setIsAdmin(adminStatus);
-      };
-      checkAdminStatus();
-    }
-  });
   
   // Reset form fields when media type changes
   const handleMediaTypeChange = (type: MediaType) => {
@@ -211,22 +201,7 @@ export default function MediaUploader({ userEmail, userId, onUploadComplete, isA
     <div className="bg-white shadow-md rounded-lg p-6 max-w-md mx-auto">
       <h2 className="text-2xl font-bold mb-6 text-green-800">Upload Media</h2>
       
-      {!isAdmin && (
-        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-yellow-700">
-                Media uploads are restricted to administrators only.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
+
       
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -267,7 +242,7 @@ export default function MediaUploader({ userEmail, userId, onUploadComplete, isA
         </div>
       </div>
       
-      <form onSubmit={handleUpload} className={`space-y-4 ${!isAdmin ? 'opacity-50 pointer-events-none' : ''}`}>
+      <form onSubmit={handleUpload} className="space-y-4">
         {mediaType === "youtube" ? (
           <div>
             <label htmlFor="youtube-url" className="block text-sm font-medium text-gray-700 mb-1">
@@ -339,12 +314,12 @@ export default function MediaUploader({ userEmail, userId, onUploadComplete, isA
         
         <button
           type="submit"
-          disabled={isUploading || !isAdmin}
+          disabled={isUploading}
           className={`w-full py-2 px-4 rounded-md text-white font-medium ${
-            isUploading || !isAdmin ? "bg-gray-400" : "bg-green-600 hover:bg-green-700"
+            isUploading ? "bg-gray-400" : "bg-green-600 hover:bg-green-700"
           }`}
         >
-          {isUploading ? "Uploading..." : !isAdmin ? "Admin Only" : `Upload ${mediaType.charAt(0).toUpperCase() + mediaType.slice(1)}`}
+          {isUploading ? "Uploading..." : `Upload ${mediaType.charAt(0).toUpperCase() + mediaType.slice(1)}`}
         </button>
       </form>
     </div>

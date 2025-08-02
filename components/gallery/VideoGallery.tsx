@@ -72,9 +72,9 @@ export default function VideoGallery({ videos, currentUser }: VideoGalleryProps)
                   <h3 className="font-medium text-lg truncate">{video.title || "Untitled Video"}</h3>
                 </div>
                 
-                {video.description && (
-                  <p className="text-gray-600 mt-1 text-sm line-clamp-2">{video.description}</p>
-                )}
+                <p className="text-gray-600 mt-1 text-sm line-clamp-2">
+                  {video.description || "No description"}
+                </p>
                 
                 <div className="mt-2 text-xs text-gray-500">
                   {video.created_at && (
@@ -124,12 +124,10 @@ export default function VideoGallery({ videos, currentUser }: VideoGalleryProps)
                 ></iframe>
               </div>
               
-              {selectedVideo.description && (
-                <div className="mt-4">
-                  <h4 className="text-sm font-medium text-gray-700">Description:</h4>
-                  <p className="mt-1 text-gray-600">{selectedVideo.description}</p>
-                </div>
-              )}
+              <div className="mt-4">
+                <h4 className="text-sm font-medium text-gray-700">Description:</h4>
+                <p className="mt-1 text-gray-600">{selectedVideo.description || "No description"}</p>
+              </div>
             </div>
           </div>
         </div>

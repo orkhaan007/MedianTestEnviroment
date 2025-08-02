@@ -5,9 +5,14 @@ import { checkIsAdmin } from "@/utils/admin/checkAdmin";
 export const dynamic = "force-dynamic";
 
 export default async function UploadPage() {
-  // This page now redirects to the admin content upload page
-  // Regular users will be redirected to the gallery
+  // Check if user is admin
+  const isAdmin = await checkIsAdmin();
   
-  // Redirect to admin content upload page
-  redirect("/admin/content/upload");
+  if (isAdmin) {
+    // Redirect admins to the admin content upload page
+    redirect("/admin/content/upload");
+  } else {
+    // Redirect non-admin users to the gallery
+    redirect("/media/gallery");
+  }
 }

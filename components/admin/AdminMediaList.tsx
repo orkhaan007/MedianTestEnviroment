@@ -157,7 +157,7 @@ export default function AdminMediaList({ mediaItems }: AdminMediaListProps) {
                     <div className="text-sm text-gray-900 capitalize">{item.media_type === 'youtube' ? 'YouTube' : item.media_type}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{item.user_email}</div>
+                    <div className="text-sm text-gray-900">{item.user_details?.full_name || item.user_email}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(item.created_at).toISOString().split('T')[0]}
