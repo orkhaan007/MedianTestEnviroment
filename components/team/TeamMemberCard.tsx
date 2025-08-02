@@ -15,6 +15,7 @@ interface TeamMember {
   image?: string;
   created_at?: string;
   profile?: {
+    full_name?: string;
     banner_url?: string;
     bio?: string;
     personal_quote?: string;
@@ -105,7 +106,7 @@ export default function TeamMemberCard({ member }: TeamMemberCardProps) {
         </div>
         
         <h3 className="text-xl font-bold text-gray-900 mb-2 hover:text-blue-600 transition-colors">
-          {name}
+          {profile?.full_name || name}
         </h3>
         
         {memberSince && (

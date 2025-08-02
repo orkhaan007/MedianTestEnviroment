@@ -17,12 +17,18 @@ interface Profile {
   bio?: string;
   personal_quote?: string;
   banner_id?: string;
+  banner_url?: string;
   member_since?: string;
   social_twitter?: string;
   social_facebook?: string;
   social_instagram?: string;
   social_linkedin?: string;
   social_github?: string;
+  social_tiktok?: string;
+  social_youtube?: string;
+  social_steam?: string;
+  social_kick?: string;
+  social_twitch?: string;
 }
 
 interface TeamMember {

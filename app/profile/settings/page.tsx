@@ -180,12 +180,9 @@ export default function ProfileSettingsPage() {
           profileData.social_twitch = socialTwitch;
         }
       } else {
-        // If we can't determine the structure, try a different approach
-        // Try to update just the basic fields that are most likely to exist
         console.log("No existing profile found, using minimal fields for update");
       }
 
-      // Use upsert with on_conflict parameter to specify which fields to update
       const { error: profileError } = await supabase
         .from('profiles')
         .upsert(profileData, {
@@ -195,7 +192,30 @@ export default function ProfileSettingsPage() {
 
       if (profileError) {
         console.error("Error updating profiles table:", profileError);
-        // Continue execution even if profiles update fails
+      }
+      
+      if (user.id) {
+        const { data: teamMemberData, error: teamMemberError } = await supabase
+          .from('team_members')
+          .select('id')
+          .eq('user_id', user.id);
+          
+        if (teamMemberError) {
+          console.error("Error fetching team member:", teamMemberError);
+        } else if (teamMemberData && teamMemberData.length > 0) {
+          for (const member of teamMemberData) {
+            const { error: updateError } = await supabase
+              .from('team_members')
+              .update({ name: fullName })
+              .eq('id', member.id);
+              
+            if (updateError) {
+              console.error(`Error updating team member ${member.id}:`, updateError);
+            } else {
+              console.log(`Successfully updated team member ${member.id} name to ${fullName}`);
+            }
+          }
+        }
       }
 
       setMessage({ type: 'success', text: 'Profile updated successfully!' });

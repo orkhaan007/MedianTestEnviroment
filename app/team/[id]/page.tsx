@@ -178,7 +178,7 @@ export default function TeamMemberPage() {
                         </span>
                       )}
                     </div>
-                    <h1 className="text-3xl font-bold text-white">{member.name}</h1>
+                    <h1 className="text-3xl font-bold text-white">{profile?.full_name || member.name}</h1>
                   </div>
                 </div>
               </div>
