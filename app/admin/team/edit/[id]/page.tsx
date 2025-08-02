@@ -15,7 +15,7 @@ interface TeamMember {
   role: string;
   description: string;
   bio: string;
-  image: string;
+  image?: string;
   social_instagram?: string;
   social_github?: string;
   social_tiktok?: string;
@@ -198,12 +198,20 @@ export default function EditTeamMemberPage({ params }: { params: { id: string } 
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex items-center mb-6">
           <div className="relative h-16 w-16 rounded-full overflow-hidden mr-4">
-            <Image
-              src={teamMember.image || "/team/placeholder.svg"}
-              alt={teamMember.name}
-              fill
-              className="object-cover"
-            />
+            {teamMember.image ? (
+              <Image
+                src={teamMember.image}
+                alt={teamMember.name}
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <div className="h-full w-full flex items-center justify-center bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
+                <div className="text-xl text-white font-bold">
+                  {teamMember.name ? teamMember.name.charAt(0).toUpperCase() : 'U'}
+                </div>
+              </div>
+            )}
           </div>
           <div>
             <div className="font-medium text-lg text-gray-900">

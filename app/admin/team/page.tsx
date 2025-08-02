@@ -30,7 +30,7 @@ interface TeamMember {
   name: string;
   role: string;
   jersey_number?: string;
-  image: string;
+  image?: string;
   created_at: string;
   profile?: Profile;
 }
@@ -233,12 +233,20 @@ export default function TeamManagementPage() {
                   <tr key={member.id}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="relative h-12 w-12 rounded-full overflow-hidden">
-                        <Image
-                          src={member.image || "/team/placeholder.svg"}
-                          alt={member.name}
-                          fill
-                          className="object-cover"
-                        />
+                        {member.image ? (
+                          <Image
+                            src={member.image}
+                            alt={member.name}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="h-full w-full flex items-center justify-center bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
+                            <div className="text-xl text-white font-bold">
+                              {member.name ? member.name.charAt(0).toUpperCase() : 'U'}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -250,7 +258,13 @@ export default function TeamManagementPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm text-gray-500 truncate max-w-xs">{member.jersey_number || '-'}</div>
+                      {member.jersey_number ? (
+                        <span className="bg-gray-800 text-white text-xs font-bold px-2 py-1 rounded">
+                          #{member.jersey_number}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">

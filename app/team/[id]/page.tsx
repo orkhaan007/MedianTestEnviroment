@@ -19,14 +19,14 @@ interface TeamMember {
   name: string;
   role: string;
   jersey_number?: string;
-  image: string;
+  image?: string;
 }
 
 interface Profile {
   id: string;
   email: string;
   full_name?: string;
-  banner_id?: string;
+  banner_url?: string;
   bio?: string;
   personal_quote?: string;
   social_instagram?: string;
@@ -129,76 +129,121 @@ export default function TeamMemberPage() {
           </Link>
 
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div className="md:flex">
-              <div className="md:w-1/3">
-                <div className="relative h-80 md:h-full w-full">
-                  <Image
-                    src={member.image}
-                    alt={member.name}
-                    fill
-                    className="object-cover"
-                  />
+            {/* Banner Section */}
+            <div className="h-96 bg-gray-100 relative overflow-hidden">
+              {profile?.banner_url ? (
+                <img 
+                  src={profile.banner_url} 
+                  alt="Team member banner" 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="bg-gradient-to-r from-[#1a2a6c] via-[#b21f1f] to-[#0ed632] h-full w-full animate-gradient-x">
+                  {/* Overlay with slight transparency for better text visibility */}
+                  <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+                </div>
+              )}
+              
+              {/* Team member name and role overlay on banner */}
+              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
+                <div className="flex items-center">
+                  {/* Profile image/avatar */}
+                  <div className="mr-4 h-20 w-20 rounded-full border-2 border-white overflow-hidden flex-shrink-0 bg-gray-200 flex items-center justify-center shadow-lg">
+                    {member.image ? (
+                      <img 
+                        src={member.image} 
+                        alt={member.name} 
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-3xl text-gray-600 font-bold">
+                        {member.name[0].toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  
+                  {/* Name and role */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span
+                        className={`inline-block px-3 py-1 rounded-full text-xs font-medium capitalize ${
+                          roleColors[member.role as keyof typeof roleColors] || "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {member.role}
+                      </span>
+                      {member.jersey_number && (
+                        <span className="bg-gray-800 text-white text-xs font-bold px-2 py-1 rounded">
+                          #{member.jersey_number}
+                        </span>
+                      )}
+                    </div>
+                    <h1 className="text-3xl font-bold text-white">{member.name}</h1>
+                  </div>
                 </div>
               </div>
-              <div className="md:w-2/3 p-8">
-                <div className="mb-6">
-                  <span
-                    className={`inline-block px-3 py-1 rounded-full text-xs font-medium capitalize mb-3 ${
-                      roleColors[member.role as keyof typeof roleColors] || "bg-gray-100 text-gray-800"
-                    }`}
-                  >
-                    {member.role}
-                  </span>
-                  <h1 className="text-3xl font-bold text-gray-900">{member.name}</h1>
-                  
-                  {member.jersey_number && (
-                    <p className="text-lg text-gray-600 mt-2">Jersey #: {member.jersey_number}</p>
-                  )}
-                  
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    {profile?.banner_id && (
-                      <div className="inline-block bg-gray-100 px-3 py-1 rounded-md text-sm text-gray-700">
-                        Banner ID: {profile.banner_id}
-                      </div>
-                    )}
-                    
-                    {profile?.member_since && (
-                      <div className="inline-block bg-gray-50 px-3 py-1 rounded-md text-sm text-gray-600">
-                        Member since: {new Date(profile.member_since).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric'
-                        })}
-                      </div>
-                    )}
-                  </div>
+            </div>
+            
+            <div className="p-6 md:p-8">
+              {/* Member since info */}
+              {profile?.member_since && (
+                <div className="mb-6 inline-block bg-gray-50 px-4 py-2 rounded-lg text-sm text-gray-600 shadow-sm">
+                  <span className="font-medium">Member since:</span> {new Date(profile.member_since).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
                 </div>
-                
-                {profile?.bio && (
-                  <div className="mb-8">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-3">About</h2>
-                    <p className="text-gray-700">{profile.bio}</p>
-                  </div>
-                )}
+              )}
+              
+              {/* Bio Section */}
+              {profile?.bio && (
+                <div className="mb-8 bg-gray-50 p-6 rounded-xl shadow-sm">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-3 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#0ed632]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    About
+                  </h2>
+                  <p className="text-gray-700 leading-relaxed">{profile.bio}</p>
+                </div>
+              )}
 
-                {profile?.personal_quote && (
-                  <div className="mb-8">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-3">Quote</h2>
-                    <blockquote className="italic text-gray-700 border-l-4 border-[#0ed632] pl-4">
-                      "{profile.personal_quote}"
-                    </blockquote>
-                  </div>
-                )}
+              {/* Quote Section */}
+              {profile?.personal_quote && (
+                <div className="mb-8 bg-gray-50 p-6 rounded-xl shadow-sm">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-3 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#0ed632]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                    </svg>
+                    Quote
+                  </h2>
+                  <blockquote className="italic text-gray-700 border-l-4 border-[#0ed632] pl-4 py-2">
+                    "{profile.personal_quote}"
+                  </blockquote>
+                </div>
+              )}
 
-                <div className="flex space-x-4">
+              {/* Social Media Section */}
+              <div className="mb-4">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                  <svg className="w-5 h-5 mr-2 text-[#0ed632]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                  </svg>
+                  Connect
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                   {profile?.social_tiktok && (
                     <a 
                       href={profile.social_tiktok} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-gray-500 hover:text-[#000000] transition-colors"
+                      className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors group"
                     >
-                      <FaTiktok className="h-6 w-6" />
+                      <div className="bg-black p-2 rounded-full group-hover:scale-110 transition-transform">
+                        <FaTiktok className="h-5 w-5 text-white" />
+                      </div>
+                      <span className="text-gray-700 group-hover:text-black">TikTok</span>
                     </a>
                   )}
                   {profile?.social_instagram && (
@@ -206,9 +251,12 @@ export default function TeamMemberPage() {
                       href={profile.social_instagram} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-gray-500 hover:text-[#E1306C] transition-colors"
+                      className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors group"
                     >
-                      <Instagram className="h-6 w-6" />
+                      <div className="bg-pink-50 p-2 rounded-full group-hover:scale-110 transition-transform">
+                        <Instagram className="h-5 w-5 text-pink-500" />
+                      </div>
+                      <span className="text-gray-700 group-hover:text-pink-500">Instagram</span>
                     </a>
                   )}
                   {profile?.social_youtube && (
@@ -216,9 +264,12 @@ export default function TeamMemberPage() {
                       href={profile.social_youtube} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-gray-500 hover:text-[#FF0000] transition-colors"
+                      className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors group"
                     >
-                      <FaYoutube className="h-6 w-6" />
+                      <div className="bg-red-100 p-2 rounded-full group-hover:scale-110 transition-transform">
+                        <FaYoutube className="h-5 w-5 text-red-600" />
+                      </div>
+                      <span className="text-gray-700 group-hover:text-red-600">YouTube</span>
                     </a>
                   )}
                   {profile?.social_github && (
@@ -226,9 +277,12 @@ export default function TeamMemberPage() {
                       href={profile.social_github} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-gray-500 hover:text-[#333] transition-colors"
+                      className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors group"
                     >
-                      <Github className="h-6 w-6" />
+                      <div className="bg-gray-200 p-2 rounded-full group-hover:scale-110 transition-transform">
+                        <Github className="h-5 w-5 text-gray-700" />
+                      </div>
+                      <span className="text-gray-700 group-hover:text-gray-900">GitHub</span>
                     </a>
                   )}
                   {profile?.social_steam && (
@@ -236,9 +290,12 @@ export default function TeamMemberPage() {
                       href={profile.social_steam} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-gray-500 hover:text-[#1b2838] transition-colors"
+                      className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors group"
                     >
-                      <FaSteam className="h-6 w-6" />
+                      <div className="bg-blue-100 p-2 rounded-full group-hover:scale-110 transition-transform">
+                        <FaSteam className="h-5 w-5 text-blue-800" />
+                      </div>
+                      <span className="text-gray-700 group-hover:text-blue-800">Steam</span>
                     </a>
                   )}
                   {profile?.social_kick && (
@@ -246,9 +303,12 @@ export default function TeamMemberPage() {
                       href={profile.social_kick} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-gray-500 hover:text-[#53fc18] transition-colors"
+                      className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors group"
                     >
-                      <SiKick className="h-6 w-6" />
+                      <div className="bg-green-100 p-2 rounded-full group-hover:scale-110 transition-transform">
+                        <SiKick className="h-5 w-5 text-green-600" />
+                      </div>
+                      <span className="text-gray-700 group-hover:text-green-600">Kick</span>
                     </a>
                   )}
                   {profile?.social_twitch && (
@@ -256,10 +316,26 @@ export default function TeamMemberPage() {
                       href={profile.social_twitch} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-gray-500 hover:text-[#6441a5] transition-colors"
+                      className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors group"
                     >
-                      <FaTwitch className="h-6 w-6" />
+                      <div className="bg-purple-100 p-2 rounded-full group-hover:scale-110 transition-transform">
+                        <FaTwitch className="h-5 w-5 text-purple-700" />
+                      </div>
+                      <span className="text-gray-700 group-hover:text-purple-700">Twitch</span>
                     </a>
+                  )}
+                  
+                  {/* Show message if no social media */}
+                  {!profile?.social_instagram && 
+                   !profile?.social_github && 
+                   !profile?.social_tiktok && 
+                   !profile?.social_youtube && 
+                   !profile?.social_steam && 
+                   !profile?.social_kick && 
+                   !profile?.social_twitch && (
+                    <div className="col-span-full text-center py-6 text-gray-500 italic bg-gray-50 rounded-lg">
+                      No social media links provided
+                    </div>
                   )}
                 </div>
               </div>

@@ -108,11 +108,6 @@ export default function TeamPage() {
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
               Our Team
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Meet the talented individuals who make Median possible. Our diverse team
-              brings together expertise from various fields to deliver the best
-              experience for our users.
-            </p>
           </div>
         
           {/* Role filters */}

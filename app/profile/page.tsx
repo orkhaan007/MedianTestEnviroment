@@ -141,7 +141,10 @@ export default function ProfilePage() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-[#0ed632] h-full w-full animate-gradient-x"></div>
+              <div className="bg-gradient-to-r from-[#1a2a6c] via-[#b21f1f] to-[#0ed632] h-full w-full animate-gradient-x">
+                {/* Overlay with slight transparency for better text visibility */}
+                <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+              </div>
             )}
             
             {/* Profile Actions - Positioned on the banner */}
