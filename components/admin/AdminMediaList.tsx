@@ -14,6 +14,19 @@ export default function AdminMediaList({ mediaItems }: AdminMediaListProps) {
   const [activeTab, setActiveTab] = useState('all');
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   
+  // Function to extract YouTube video ID from embed URL
+  const extractYoutubeVideoId = (url: string): string | null => {
+    if (url.includes('/embed/')) {
+      return url.split('/embed/')[1]?.split('?')[0];
+    }
+    return null;
+  };
+  
+  // Function to get YouTube thumbnail URL
+  const getYoutubeThumbnailUrl = (videoId: string): string => {
+    return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+  };
+  
   // Filter items based on active tab
   const filteredItems = activeTab === 'all' 
     ? items 
@@ -89,6 +102,9 @@ export default function AdminMediaList({ mediaItems }: AdminMediaListProps) {
                   Details
                 </th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Type
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Uploaded By
                 </th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -113,22 +129,40 @@ export default function AdminMediaList({ mediaItems }: AdminMediaListProps) {
                         />
                       </div>
                     ) : (
-                      <div className="w-20 h-20 bg-gray-100 flex items-center justify-center rounded-md">
-                        <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
+                      <div className="w-20 h-20 relative">
+                        {(() => {
+                          const videoId = extractYoutubeVideoId(item.url);
+                          const thumbnailUrl = videoId ? getYoutubeThumbnailUrl(videoId) : '';
+                          return (
+                            <>
+                              <Image 
+                                src={thumbnailUrl} 
+                                alt={item.title || 'YouTube Video'} 
+                                fill
+                                className="object-cover rounded-md"
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="bg-black bg-opacity-50 rounded-full p-2">
+                                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                  </svg>
+                                </div>
+                              </div>
+                            </>
+                          );
+                        })()} 
                       </div>
                     )}
                   </td>
                   <td className="px-6 py-4">
                     <div className="text-sm font-medium text-gray-900">{item.title || 'Untitled'}</div>
                     <div className="text-sm text-gray-500">{item.description || 'No description'}</div>
-                    <div className="text-xs text-gray-400 mt-1">Type: {item.media_type}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900 capitalize">{item.media_type === 'youtube' ? 'YouTube' : item.media_type}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">{item.user_email}</div>
-                    <div className="text-xs text-gray-500">{item.user_id}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(item.created_at).toLocaleDateString()}
