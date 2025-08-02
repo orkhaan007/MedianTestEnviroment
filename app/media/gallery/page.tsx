@@ -9,7 +9,6 @@ export default function GalleryPage() {
   const [mediaItems, setMediaItems] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
   
-  // Use useEffect to fetch data when component mounts
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -25,7 +24,6 @@ export default function GalleryPage() {
     fetchData();
   }, []);
   
-  // Filter media by type
   const images = mediaItems.filter(item => item.media_type === "image");
   const videos = mediaItems.filter(item => item.media_type === "youtube");
   
@@ -36,7 +34,6 @@ export default function GalleryPage() {
         videos={videos}
         currentUser={user}
         pageTitle="Media Gallery"
-        isMyUploads={false}
       />
     </Layout>
   );

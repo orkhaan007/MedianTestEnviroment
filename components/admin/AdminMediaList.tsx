@@ -14,7 +14,6 @@ export default function AdminMediaList({ mediaItems }: AdminMediaListProps) {
   const [activeTab, setActiveTab] = useState('all');
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   
-  // Function to extract YouTube video ID from embed URL
   const extractYoutubeVideoId = (url: string): string | null => {
     if (url.includes('/embed/')) {
       return url.split('/embed/')[1]?.split('?')[0];
@@ -22,17 +21,14 @@ export default function AdminMediaList({ mediaItems }: AdminMediaListProps) {
     return null;
   };
   
-  // Function to get YouTube thumbnail URL
   const getYoutubeThumbnailUrl = (videoId: string): string => {
     return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
   };
   
-  // Filter items based on active tab
   const filteredItems = activeTab === 'all' 
     ? items 
     : items.filter(item => item.media_type === activeTab);
   
-  // Function to handle media deletion
   const handleDelete = async (mediaId: string) => {
     if (isDeleting) return;
     
@@ -40,7 +36,6 @@ export default function AdminMediaList({ mediaItems }: AdminMediaListProps) {
       setIsDeleting(mediaId);
       await deleteMediaAdmin(mediaId);
       
-      // Update local state after successful deletion
       setItems(prevItems => prevItems.filter(item => item.id !== mediaId));
     } catch (error) {
       console.error("Error deleting media:", error);
@@ -165,7 +160,7 @@ export default function AdminMediaList({ mediaItems }: AdminMediaListProps) {
                     <div className="text-sm text-gray-900">{item.user_email}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(item.created_at).toLocaleDateString()}
+                    {new Date(item.created_at).toISOString().split('T')[0]}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
