@@ -83,6 +83,19 @@ export default function AdminPage() {
             Manage Content
           </button>
         </div>
+        
+        <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Jersey Management</h2>
+          <p className="text-gray-600 mb-4">
+            Manage team jerseys, upload new jersey images, and update jersey information.
+          </p>
+          <button 
+            onClick={() => router.push("/admin/jerseys")}
+            className="px-4 py-2 bg-[#0ed632] text-white rounded-md hover:bg-[#0bc02c] transition-colors"
+          >
+            Manage Jerseys
+          </button>
+        </div>
       </div>
     </div>
   );
