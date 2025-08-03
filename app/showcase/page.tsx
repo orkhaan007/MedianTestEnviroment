@@ -22,7 +22,6 @@ export default function ShowcasePage() {
   const [selectedItem, setSelectedItem] = useState<Showcase | null>(null);
   const supabase = createClient();
 
-  // Fetch showcase items from database
   useEffect(() => {
     async function fetchShowcaseItems() {
       try {
@@ -54,7 +53,6 @@ export default function ShowcasePage() {
     setSelectedItem(null);
   };
 
-  // Handle escape key to close modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -84,7 +82,6 @@ export default function ShowcasePage() {
             </p>
           </div>
 
-          {/* Showcase grid */}
           {showcaseItems.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-xl text-gray-600">No items available yet.</p>
@@ -139,7 +136,6 @@ export default function ShowcasePage() {
         </div>
       </div>
 
-      {/* Showcase Modal */}
       {selectedItem && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
@@ -204,6 +200,19 @@ export default function ShowcasePage() {
           </motion.div>
         </div>
       )}
+      
+      <div className="border-t border-gray-100 py-5">
+        <div className="container mx-auto px-4 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex items-center justify-center space-x-2.5">
+            <span className="text-gray-500 text-xs tracking-wide">Special Thanks to <b>Kozmos</b></span>
+          </motion.div>
+        </div>
+      </div>
+      
       <Footer />
     </>
   );
