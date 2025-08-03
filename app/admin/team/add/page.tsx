@@ -26,7 +26,7 @@ interface User {
   };
 }
 
-const roleOptions = ["boss", "og", "big brother", "brother", "member"];
+const roleOptions = ["BOSS", "OG", "BIG BROTHER", "BROTHER", "MEMBER"];
 
 export default function AddTeamMemberPage() {
   const [loading, setLoading] = useState(true);
@@ -36,7 +36,7 @@ export default function AddTeamMemberPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [formData, setFormData] = useState({
-    role: "member",
+    role: "MEMBER",
     jersey_number: ""
   });
   

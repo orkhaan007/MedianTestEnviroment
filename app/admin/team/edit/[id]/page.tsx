@@ -1,21 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/utils/supabase/client";
 import { ArrowLeft } from "lucide-react";
 import Loading from "@/components/ui/Loading";
+import { useParams } from "next/navigation";
 
 interface TeamMember {
   id: string;
   user_id: string;
   name: string;
   role: string;
-  description: string;
-  bio: string;
+  description?: string;
+  bio?: string;
   image?: string;
+  jersey_number?: string;
   social_instagram?: string;
   social_github?: string;
   social_tiktok?: string;
@@ -23,26 +25,24 @@ interface TeamMember {
   social_steam?: string;
   social_kick?: string;
   social_twitch?: string;
+  email?: string;
 }
 
-const roleOptions = ["boss", "og", "big brother", "brother", "member"];
+const roleOptions = ["BOSS", "OG", "BIG BROTHER", "BROTHER", "MEMBER"];
 
-export default function EditTeamMemberPage({ params }: { params: { id: string } }) {
+export default function EditTeamMemberPage() {
+
+  const params = useParams();
+  const id = params.id;
+  
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [teamMember, setTeamMember] = useState<TeamMember | null>(null);
   const [formData, setFormData] = useState({
     role: "",
     name: "",
-    description: "",
-    bio: "",
-    social_instagram: "",
-    social_github: "",
-    social_tiktok: "",
-    social_youtube: "",
-    social_steam: "",
-    social_kick: "",
-    social_twitch: "",
+    jersey_number: "",
+    email: ""
   });
   
   const router = useRouter();
@@ -72,11 +72,11 @@ export default function EditTeamMemberPage({ params }: { params: { id: string } 
           return;
         }
         
-        // Fetch team member
+
         const { data, error } = await supabase
           .from("team_members")
           .select("*")
-          .eq("id", params.id)
+          .eq("id", id)
           .single();
           
         if (error) {
@@ -88,19 +88,19 @@ export default function EditTeamMemberPage({ params }: { params: { id: string } 
         
         setTeamMember(data);
         
+        // Get user email from profiles table
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("email")
+          .eq("id", data.user_id)
+          .single();
+        
         // Set form data
         setFormData({
           role: data.role || "member",
           name: data.name || "",
-          description: data.description || "",
-          bio: data.bio || "",
-          social_instagram: data.social_instagram || "",
-          social_github: data.social_github || "",
-          social_tiktok: data.social_tiktok || "",
-          social_youtube: data.social_youtube || "",
-          social_steam: data.social_steam || "",
-          social_kick: data.social_kick || "",
-          social_twitch: data.social_twitch || "",
+          jersey_number: data.jersey_number || "",
+          email: profileData?.email || ""
         });
       } catch (error) {
         console.error("Error in fetchTeamMember:", error);
@@ -110,7 +110,7 @@ export default function EditTeamMemberPage({ params }: { params: { id: string } 
     }
 
     fetchTeamMember();
-  }, [params.id, router, supabase]);
+  }, [id, router, supabase]);
 
   // Handle form input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -130,23 +130,14 @@ export default function EditTeamMemberPage({ params }: { params: { id: string } 
     setSubmitting(true);
     
     try {
-      // Update team member
+      // Update role and jersey number of the team member
       const { data, error } = await supabase
         .from("team_members")
         .update({
           role: formData.role,
-          name: formData.name,
-          description: formData.description,
-          bio: formData.bio,
-          social_instagram: formData.social_instagram,
-          social_github: formData.social_github,
-          social_tiktok: formData.social_tiktok,
-          social_youtube: formData.social_youtube,
-          social_steam: formData.social_steam,
-          social_kick: formData.social_kick,
-          social_twitch: formData.social_twitch,
+          jersey_number: formData.jersey_number
         })
-        .eq("id", params.id)
+        .eq("id", id)
         .select();
         
       if (error) {
@@ -195,230 +186,127 @@ export default function EditTeamMemberPage({ params }: { params: { id: string } 
         <h1 className="text-3xl font-bold text-gray-900">Edit Team Member</h1>
       </div>
       
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex items-center mb-6">
-          <div className="relative h-16 w-16 rounded-full overflow-hidden mr-4">
-            {teamMember.image ? (
-              <Image
-                src={teamMember.image}
-                alt={teamMember.name}
-                fill
-                className="object-cover"
-              />
-            ) : (
-              <div className="h-full w-full flex items-center justify-center bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
-                <div className="text-xl text-white font-bold">
-                  {teamMember.name ? teamMember.name.charAt(0).toUpperCase() : 'U'}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        {/* Team Member Info Panel */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Team Member Info</h2>
+          
+          <div className="flex items-center">
+            <div className="relative h-20 w-20 rounded-full overflow-hidden mr-4">
+              {teamMember.image ? (
+                <Image
+                  src={teamMember.image}
+                  alt={teamMember.name}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <div className="h-full w-full flex items-center justify-center bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
+                  <div className="text-xl text-white font-bold">
+                    {teamMember.name ? teamMember.name.charAt(0).toUpperCase() : 'U'}
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-          <div>
-            <div className="font-medium text-lg text-gray-900">
-              {teamMember.name}
+              )}
             </div>
-            <div className="text-gray-500">User ID: {teamMember.user_id}</div>
+            <div>
+              <div className="font-medium text-xl text-gray-900">
+                {teamMember.name}
+              </div>
+              <div className="text-gray-500">{formData.email}</div>
+            </div>
+          </div>
+          
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="text-sm font-medium text-gray-500">Current Role</div>
+                <div className="mt-1 text-lg font-medium text-gray-900">{teamMember.role}</div>
+              </div>
+              <div>
+                <div className="text-sm font-medium text-gray-500">Jersey Number</div>
+                <div className="mt-1 text-lg font-medium text-gray-900">{teamMember.jersey_number || 'Not assigned'}</div>
+              </div>
+            </div>
           </div>
         </div>
         
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0ed632] focus:border-transparent"
-                required
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
-                Role
-              </label>
-              <select
-                id="role"
-                name="role"
-                value={formData.role}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0ed632] focus:border-transparent"
-                required
-              >
-                {roleOptions.map((role) => (
-                  <option key={role} value={role}>
-                    {role.charAt(0).toUpperCase() + role.slice(1)}
-                  </option>
-                ))}
-              </select>
-            </div>
-            
-            <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                Short Description
-              </label>
-              <input
-                type="text"
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                placeholder="e.g. Lead Developer"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0ed632] focus:border-transparent"
-                required
-              />
-            </div>
-            
-
-          </div>
+        {/* Role Edit Form */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Edit Team Member</h2>
           
-          <div>
-            <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">
-              Bio
-            </label>
-            <textarea
-              id="bio"
-              name="bio"
-              value={formData.bio}
-              onChange={handleInputChange}
-              rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0ed632] focus:border-transparent"
-              required
-            ></textarea>
-          </div>
-          
-          <div className="border-t border-gray-200 pt-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Social Links</h3>
-            
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="social_tiktok" className="block text-sm font-medium text-gray-700 mb-1">
-                  TikTok
+                <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
+                  Role
                 </label>
-                <input
-                  type="url"
-                  id="social_tiktok"
-                  name="social_tiktok"
-                  value={formData.social_tiktok}
+                <select
+                  id="role"
+                  name="role"
+                  value={formData.role}
                   onChange={handleInputChange}
-                  placeholder="https://tiktok.com/@username"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0ed632] focus:border-transparent"
-                />
+                  required
+                >
+                  {roleOptions.map((role) => (
+                    <option key={role} value={role}>
+                      {role.charAt(0).toUpperCase() + role.slice(1)}
+                    </option>
+                  ))}
+                </select>
               </div>
               
               <div>
-                <label htmlFor="social_instagram" className="block text-sm font-medium text-gray-700 mb-1">
-                  Instagram
+                <label htmlFor="jersey_number" className="block text-sm font-medium text-gray-700 mb-1">
+                  Jersey Number
                 </label>
                 <input
-                  type="url"
-                  id="social_instagram"
-                  name="social_instagram"
-                  value={formData.social_instagram}
+                  type="text"
+                  id="jersey_number"
+                  name="jersey_number"
+                  value={formData.jersey_number}
                   onChange={handleInputChange}
-                  placeholder="https://instagram.com/username"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0ed632] focus:border-transparent"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="social_youtube" className="block text-sm font-medium text-gray-700 mb-1">
-                  YouTube
-                </label>
-                <input
-                  type="url"
-                  id="social_youtube"
-                  name="social_youtube"
-                  value={formData.social_youtube}
-                  onChange={handleInputChange}
-                  placeholder="https://youtube.com/c/channel"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0ed632] focus:border-transparent"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="social_github" className="block text-sm font-medium text-gray-700 mb-1">
-                  GitHub
-                </label>
-                <input
-                  type="url"
-                  id="social_github"
-                  name="social_github"
-                  value={formData.social_github}
-                  onChange={handleInputChange}
-                  placeholder="https://github.com/username"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0ed632] focus:border-transparent"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="social_steam" className="block text-sm font-medium text-gray-700 mb-1">
-                  Steam
-                </label>
-                <input
-                  type="url"
-                  id="social_steam"
-                  name="social_steam"
-                  value={formData.social_steam}
-                  onChange={handleInputChange}
-                  placeholder="https://steamcommunity.com/id/username"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0ed632] focus:border-transparent"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="social_kick" className="block text-sm font-medium text-gray-700 mb-1">
-                  Kick
-                </label>
-                <input
-                  type="url"
-                  id="social_kick"
-                  name="social_kick"
-                  value={formData.social_kick}
-                  onChange={handleInputChange}
-                  placeholder="https://kick.com/username"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0ed632] focus:border-transparent"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="social_twitch" className="block text-sm font-medium text-gray-700 mb-1">
-                  Twitch
-                </label>
-                <input
-                  type="url"
-                  id="social_twitch"
-                  name="social_twitch"
-                  value={formData.social_twitch}
-                  onChange={handleInputChange}
-                  placeholder="https://twitch.tv/username"
+                  placeholder="e.g. 23"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0ed632] focus:border-transparent"
                 />
               </div>
             </div>
-          </div>
-          
-          <div className="flex justify-end space-x-4">
-            <Link
-              href="/admin/team"
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </Link>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="px-4 py-2 bg-[#0ed632] text-white rounded-md hover:bg-[#0bc02c] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {submitting ? "Updating..." : "Update Team Member"}
-            </button>
-          </div>
-        </form>
+            
+            <div className="bg-gray-50 p-4 rounded-md mt-4">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-blue-800">Information</h3>
+                  <div className="mt-2 text-sm text-blue-700">
+                    <p>
+                      Only the role and jersey number can be edited. Other information must be updated by the user in their profile.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-4">
+              <Link
+                href="/admin/team"
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </Link>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="px-4 py-2 bg-[#0ed632] text-white rounded-md hover:bg-[#0bc02c] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {submitting ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
