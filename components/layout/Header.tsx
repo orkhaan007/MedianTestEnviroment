@@ -11,7 +11,6 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mediaOpen, setMediaOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [rescueOpen, setRescueOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const pathname = usePathname();
 
@@ -90,39 +89,13 @@ const Header = () => {
               </li>
               
 
-              <li className="relative">
-                <button 
+              <li>
+                <Link 
+                  href="/showcase" 
                   className="flex items-center text-gray-600 hover:text-[#0ed632] font-medium transition-colors"
-                  onClick={() => {
-                    setRescueOpen(!rescueOpen);
-                    if (mediaOpen) setMediaOpen(false);
-                  }}
                 >
-                  Median
-                  <ChevronDown className="ml-1 h-4 w-4" />
-                </button>
-                {rescueOpen && (
-                  <div className="absolute left-0 mt-1 w-48 bg-white rounded shadow-sm border border-gray-100 py-1 z-10">
-                    <Link 
-                      href="/median/armor" 
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:text-[#0ed632] hover:bg-[#f0fff0]"
-                    >
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                      </svg>
-                      Armor
-                    </Link>
-                    <Link 
-                      href="/median/jersey" 
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:text-[#0ed632] hover:bg-[#f0fff0]"
-                    >
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                      </svg>
-                      Jersey
-                    </Link>
-                  </div>
-                )}
+                  Showcase
+                </Link>
               </li>
               
               {/* Profile dropdown */}
@@ -133,7 +106,6 @@ const Header = () => {
                     onClick={() => {
                       setProfileOpen(!profileOpen);
                       if (mediaOpen) setMediaOpen(false);
-                      if (rescueOpen) setRescueOpen(false);
                     }}
                   >
                     Profile

@@ -8,7 +8,7 @@ import { createClient } from "@/utils/supabase/client";
 import { Edit, Trash2, Plus, ArrowLeft, Search } from "lucide-react";
 import Loading from "@/components/ui/Loading";
 
-interface Jersey {
+interface Showcase {
   id: string;
   name: string;
   image_url: string;
@@ -17,9 +17,9 @@ interface Jersey {
   created_at: string;
 }
 
-export default function JerseyManagementPage() {
+export default function ShowcaseManagementPage() {
   const [loading, setLoading] = useState(true);
-  const [jerseys, setJerseys] = useState<Jersey[]>([]);
+  const [showcaseItems, setShowcaseItems] = useState<Showcase[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
   const supabase = createClient();
@@ -48,16 +48,16 @@ export default function JerseyManagementPage() {
           return;
         }
         
-        // Fetch jerseys
-        const { data: jerseyData, error: jerseyError } = await supabase
+        // Fetch showcase items
+        const { data: showcaseData, error: showcaseError } = await supabase
           .from("jerseys")
           .select("*")
           .order("created_at", { ascending: false });
           
-        if (jerseyError) {
-          console.error("Error fetching jerseys:", jerseyError);
+        if (showcaseError) {
+          console.error("Error fetching showcase items:", showcaseError);
         } else {
-          setJerseys(jerseyData || []);
+          setShowcaseItems(showcaseData || []);
         }
       } catch (error) {
         console.error("Error in fetchData:", error);
@@ -69,15 +69,15 @@ export default function JerseyManagementPage() {
     fetchData();
   }, [router, supabase]);
 
-  // Filter jerseys based on search term
-  const filteredJerseys = jerseys.filter(jersey => 
-    jersey.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (jersey.season && jersey.season.toLowerCase().includes(searchTerm.toLowerCase()))
+  // Filter showcase items based on search term
+  const filteredShowcaseItems = showcaseItems.filter(item => 
+    item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (item.season && item.season.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  // Delete jersey
-  const deleteJersey = async (id: string) => {
-    if (confirm("Are you sure you want to delete this jersey?")) {
+  // Delete showcase item
+  const deleteShowcaseItem = async (id: string) => {
+    if (confirm("Are you sure you want to delete this showcase item?")) {
       try {
         const { error } = await supabase
           .from("jerseys")
@@ -85,16 +85,16 @@ export default function JerseyManagementPage() {
           .eq("id", id);
           
         if (error) {
-          console.error("Error deleting jersey:", error);
-          alert("Failed to delete jersey");
+          console.error("Error deleting showcase item:", error);
+          alert("Failed to delete showcase item");
         } else {
           // Update local state
-          setJerseys(prev => prev.filter(jersey => jersey.id !== id));
-          alert("Jersey deleted successfully");
+          setShowcaseItems(prev => prev.filter(item => item.id !== id));
+          alert("Showcase item deleted successfully");
         }
       } catch (error) {
-        console.error("Error in deleteJersey:", error);
-        alert("An error occurred while deleting the jersey");
+        console.error("Error in deleteShowcaseItem:", error);
+        alert("An error occurred while deleting the showcase item");
       }
     }
   };
@@ -109,14 +109,14 @@ export default function JerseyManagementPage() {
         <Link href="/admin" className="mr-4">
           <ArrowLeft className="h-5 w-5 text-gray-600 hover:text-[#0ed632]" />
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900">Jersey Management</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Showcase Management</h1>
       </div>
       
       <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="relative w-full md:w-64">
           <input
             type="text"
-            placeholder="Search jerseys..."
+            placeholder="Search showcase items..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0ed632] focus:border-transparent"
@@ -125,11 +125,11 @@ export default function JerseyManagementPage() {
         </div>
         
         <Link 
-          href="/admin/jerseys/add"
+          href="/admin/showcase/add"
           className="flex items-center justify-center px-4 py-2 bg-[#0ed632] text-white rounded-md hover:bg-[#0bc02c] transition-colors"
         >
           <Plus className="h-5 w-5 mr-2" />
-          Add Jersey
+          Add Showcase Item
         </Link>
       </div>
       
@@ -153,15 +153,15 @@ export default function JerseyManagementPage() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredJerseys.length > 0 ? (
-                filteredJerseys.map((jersey) => (
-                  <tr key={jersey.id}>
+              {filteredShowcaseItems.length > 0 ? (
+                filteredShowcaseItems.map((item) => (
+                  <tr key={item.id}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="relative h-16 w-16 rounded-md overflow-hidden">
-                        {jersey.image_url ? (
+                        {item.image_url ? (
                           <Image
-                            src={jersey.image_url}
-                            alt={`${jersey.name}`}
+                            src={item.image_url}
+                            alt={`${item.name}`}
                             fill
                             className="object-cover"
                           />
@@ -175,12 +175,12 @@ export default function JerseyManagementPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{jersey.name}</div>
+                      <div className="text-sm font-medium text-gray-900">{item.name}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {jersey.season ? (
+                      {item.season ? (
                         <span className="text-sm text-gray-700">
-                          {jersey.season}
+                          {item.season}
                         </span>
                       ) : (
                         <span className="text-gray-400">-</span>
@@ -189,13 +189,13 @@ export default function JerseyManagementPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
                         <Link 
-                          href={`/admin/jerseys/edit/${jersey.id}`}
+                          href={`/admin/showcase/edit/${item.id}`}
                           className="text-indigo-600 hover:text-indigo-900"
                         >
                           <Edit className="h-5 w-5" />
                         </Link>
                         <button 
-                          onClick={() => deleteJersey(jersey.id)}
+                          onClick={() => deleteShowcaseItem(item.id)}
                           className="text-red-600 hover:text-red-900"
                         >
                           <Trash2 className="h-5 w-5" />
@@ -207,7 +207,7 @@ export default function JerseyManagementPage() {
               ) : (
                 <tr>
                   <td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500">
-                    {searchTerm ? "No jerseys found matching your search." : "No jerseys found. Add your first jersey!"}
+                    {searchTerm ? "No showcase items found matching your search." : "No showcase items found. Add your first showcase item!"}
                   </td>
                 </tr>
               )}

@@ -5,11 +5,11 @@ import { createClient } from "@/utils/supabase/client";
 import { v4 as uuidv4 } from "uuid";
 import { Upload, X, Loader2 } from "lucide-react";
 
-interface JerseyUploaderProps {
+interface ShowcaseUploaderProps {
   onSuccess: () => void;
 }
 
-export default function JerseyUploader({ onSuccess }: JerseyUploaderProps) {
+export default function ShowcaseUploader({ onSuccess }: ShowcaseUploaderProps) {
   const [name, setName] = useState("");
   const [season, setSeason] = useState("");
   const [description, setDescription] = useState("");
@@ -51,7 +51,7 @@ export default function JerseyUploader({ onSuccess }: JerseyUploaderProps) {
     }
     
     if (!name) {
-      setError("Please enter a jersey name");
+      setError("Please enter a showcase item name");
       return;
     }
     
@@ -74,7 +74,7 @@ export default function JerseyUploader({ onSuccess }: JerseyUploaderProps) {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("upload_preset", uploadPreset);
-      formData.append("folder", "jerseys"); // Store in jerseys folder
+      formData.append("folder", "showcase"); // Store in showcase folder
 
       // Upload to Cloudinary with progress tracking
       const xhr = new XMLHttpRequest();
@@ -110,7 +110,7 @@ export default function JerseyUploader({ onSuccess }: JerseyUploaderProps) {
       // Wait for the upload to complete
       const imageUrl = await uploadPromise;
       
-      // Save jersey data to database
+      // Save showcase data to database
       const { error: dbError } = await supabase
         .from("jerseys")
         .insert({
@@ -121,7 +121,7 @@ export default function JerseyUploader({ onSuccess }: JerseyUploaderProps) {
         });
         
       if (dbError) {
-        throw new Error(`Error saving jersey data: ${dbError.message}`);
+        throw new Error(`Error saving showcase data: ${dbError.message}`);
       }
       
       // Clear form and notify parent component
@@ -133,7 +133,7 @@ export default function JerseyUploader({ onSuccess }: JerseyUploaderProps) {
       
     } catch (err: any) {
       setError(err.message);
-      console.error("Error uploading jersey:", err);
+      console.error("Error uploading showcase item:", err);
     } finally {
       setUploading(false);
       setUploadProgress(0);
@@ -152,20 +152,18 @@ export default function JerseyUploader({ onSuccess }: JerseyUploaderProps) {
         <div className="space-y-4">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-              Jersey Name *
+              Item Name *
             </label>
             <input
               type="text"
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Player Name or Jersey Type"
+              placeholder="Showcase Item Name"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0ed632] focus:border-transparent"
               required
             />
           </div>
-          
-
           
           <div>
             <label htmlFor="season" className="block text-sm font-medium text-gray-700 mb-1">
@@ -189,7 +187,7 @@ export default function JerseyUploader({ onSuccess }: JerseyUploaderProps) {
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Enter jersey description..."
+              placeholder="Enter item description..."
               rows={4}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0ed632] focus:border-transparent"
             />
@@ -198,7 +196,7 @@ export default function JerseyUploader({ onSuccess }: JerseyUploaderProps) {
         
         <div className="space-y-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Jersey Image *
+            Item Image *
           </label>
           
           {!previewUrl ? (
@@ -215,7 +213,7 @@ export default function JerseyUploader({ onSuccess }: JerseyUploaderProps) {
                 className="flex flex-col items-center justify-center cursor-pointer w-full h-full"
               >
                 <Upload className="h-12 w-12 text-gray-400 mb-2" />
-                <p className="text-sm text-gray-600">Click to upload jersey image</p>
+                <p className="text-sm text-gray-600">Click to upload showcase image</p>
                 <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 10MB</p>
               </label>
             </div>
@@ -223,7 +221,7 @@ export default function JerseyUploader({ onSuccess }: JerseyUploaderProps) {
             <div className="relative border border-gray-200 rounded-lg overflow-hidden h-64">
               <img
                 src={previewUrl}
-                alt="Jersey preview"
+                alt="Showcase item preview"
                 className="w-full h-full object-contain"
               />
               <button
@@ -254,7 +252,7 @@ export default function JerseyUploader({ onSuccess }: JerseyUploaderProps) {
           ) : (
             <>
               <Upload className="h-5 w-5 mr-2" />
-              Upload Jersey
+              Upload Item
             </>
           )}
         </button>

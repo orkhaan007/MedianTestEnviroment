@@ -6,9 +6,10 @@ import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { ArrowLeft } from "lucide-react";
 import Loading from "@/components/ui/Loading";
-import JerseyEditor from "@/components/jerseys/JerseyEditor";
+import ShowcaseEditor from "@/components/showcase/ShowcaseEditor";
+import { useParams } from "next/navigation";
 
-interface Jersey {
+interface Showcase {
   id: string;
   name: string;
   image_url: string;
@@ -17,17 +18,18 @@ interface Jersey {
   created_at: string;
 }
 
-export default function EditJerseyPage({ params }: { params: { id: string } }) {
+export default function EditShowcaseItemPage() {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [jersey, setJersey] = useState<Jersey | null>(null);
+  const [showcase, setShowcase] = useState<Showcase | null>(null);
   const router = useRouter();
   const supabase = createClient();
-  const { id } = params;
+  const params = useParams();
+  const id = params.id;
 
-  // Check if user is admin and fetch jersey data
+  // Check if user is admin and fetch showcase data
   useEffect(() => {
-    async function checkAdminAndFetchJersey() {
+    async function checkAdminAndFetchShowcase() {
       try {
         // Check if user is admin
         const { data: { user } } = await supabase.auth.getUser();
@@ -51,54 +53,54 @@ export default function EditJerseyPage({ params }: { params: { id: string } }) {
         
         setIsAdmin(true);
         
-        // Fetch jersey data
-        const { data: jerseyData, error: jerseyError } = await supabase
+        // Fetch showcase data
+        const { data: showcaseData, error: showcaseError } = await supabase
           .from("jerseys")
           .select("*")
           .eq("id", id)
           .single();
           
-        if (jerseyError) {
-          console.error("Error fetching jersey:", jerseyError);
-          alert("Jersey not found");
-          router.push("/admin/jerseys");
+        if (showcaseError) {
+          console.error("Error fetching showcase item:", showcaseError);
+          alert("Showcase item not found");
+          router.push("/admin/showcase");
           return;
         }
         
-        setJersey(jerseyData);
+        setShowcase(showcaseData);
       } catch (error) {
-        console.error("Error in checkAdminAndFetchJersey:", error);
-        router.push("/admin/jerseys");
+        console.error("Error in checkAdminAndFetchShowcase:", error);
+        router.push("/admin/showcase");
       } finally {
         setLoading(false);
       }
     }
 
-    checkAdminAndFetchJersey();
+    checkAdminAndFetchShowcase();
   }, [id, router, supabase]);
 
   if (loading) {
     return <Loading />;
   }
 
-  if (!isAdmin || !jersey) {
+  if (!isAdmin || !showcase) {
     return null; // This will never render because we redirect non-admins
   }
 
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="flex items-center mb-8">
-        <Link href="/admin/jerseys" className="mr-4">
+        <Link href="/admin/showcase" className="mr-4">
           <ArrowLeft className="h-5 w-5 text-gray-600 hover:text-[#0ed632]" />
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900">Edit Jersey</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Edit Showcase Item</h1>
       </div>
       
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <div className="p-6">
-          <JerseyEditor 
-            jersey={jersey} 
-            onSuccess={() => router.push("/admin/jerseys")} 
+          <ShowcaseEditor 
+            showcase={showcase} 
+            onSuccess={() => router.push("/admin/showcase")} 
           />
         </div>
       </div>

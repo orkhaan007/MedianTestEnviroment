@@ -5,7 +5,7 @@ import { createClient } from "@/utils/supabase/client";
 import { v4 as uuidv4 } from "uuid";
 import { Upload, X, Loader2, Save } from "lucide-react";
 
-interface Jersey {
+interface Showcase {
   id: string;
   name: string;
   image_url: string;
@@ -14,17 +14,17 @@ interface Jersey {
   created_at: string;
 }
 
-interface JerseyEditorProps {
-  jersey: Jersey;
+interface ShowcaseEditorProps {
+  showcase: Showcase;
   onSuccess: () => void;
 }
 
-export default function JerseyEditor({ jersey, onSuccess }: JerseyEditorProps) {
-  const [name, setName] = useState(jersey.name);
-  const [season, setSeason] = useState(jersey.season || "");
-  const [description, setDescription] = useState(jersey.description || "");
+export default function ShowcaseEditor({ showcase, onSuccess }: ShowcaseEditorProps) {
+  const [name, setName] = useState(showcase.name);
+  const [season, setSeason] = useState(showcase.season || "");
+  const [description, setDescription] = useState(showcase.description || "");
   const [file, setFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string>(jersey.image_url);
+  const [previewUrl, setPreviewUrl] = useState<string>(showcase.image_url);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +45,7 @@ export default function JerseyEditor({ jersey, onSuccess }: JerseyEditorProps) {
 
   const resetToOriginalImage = () => {
     setFile(null);
-    setPreviewUrl(jersey.image_url);
+    setPreviewUrl(showcase.image_url);
     setImageChanged(false);
   };
 
@@ -53,17 +53,15 @@ export default function JerseyEditor({ jersey, onSuccess }: JerseyEditorProps) {
     e.preventDefault();
     
     if (!name) {
-      setError("Please enter a jersey name");
+      setError("Please enter a showcase item name");
       return;
     }
-    
-
     
     try {
       setUploading(true);
       setError(null);
       
-      let imageUrl = jersey.image_url;
+      let imageUrl = showcase.image_url;
       
       // If image was changed, upload the new one
       if (imageChanged && file) {
@@ -80,7 +78,7 @@ export default function JerseyEditor({ jersey, onSuccess }: JerseyEditorProps) {
         const formData = new FormData();
         formData.append("file", file);
         formData.append("upload_preset", uploadPreset);
-        formData.append("folder", "jerseys"); // Store in jerseys folder
+        formData.append("folder", "showcase"); // Store in showcase folder
 
         // Upload to Cloudinary with progress tracking
         const xhr = new XMLHttpRequest();
@@ -117,7 +115,7 @@ export default function JerseyEditor({ jersey, onSuccess }: JerseyEditorProps) {
         imageUrl = await uploadPromise;
       }
       
-      // Update jersey data in database
+      // Update showcase data in database
       const { error: dbError } = await supabase
         .from("jerseys")
         .update({
@@ -126,10 +124,10 @@ export default function JerseyEditor({ jersey, onSuccess }: JerseyEditorProps) {
           description: description || null,
           season: season || null,
         })
-        .eq("id", jersey.id);
+        .eq("id", showcase.id);
         
       if (dbError) {
-        throw new Error(`Error updating jersey data: ${dbError.message}`);
+        throw new Error(`Error updating showcase data: ${dbError.message}`);
       }
       
       // Notify parent component
@@ -137,7 +135,7 @@ export default function JerseyEditor({ jersey, onSuccess }: JerseyEditorProps) {
       
     } catch (err: any) {
       setError(err.message);
-      console.error("Error updating jersey:", err);
+      console.error("Error updating showcase item:", err);
     } finally {
       setUploading(false);
       setUploadProgress(0);
@@ -147,11 +145,11 @@ export default function JerseyEditor({ jersey, onSuccess }: JerseyEditorProps) {
   // Clean up object URLs when component unmounts
   useEffect(() => {
     return () => {
-      if (imageChanged && previewUrl !== jersey.image_url) {
+      if (imageChanged && previewUrl !== showcase.image_url) {
         URL.revokeObjectURL(previewUrl);
       }
     };
-  }, [imageChanged, previewUrl, jersey.image_url]);
+  }, [imageChanged, previewUrl, showcase.image_url]);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -165,20 +163,18 @@ export default function JerseyEditor({ jersey, onSuccess }: JerseyEditorProps) {
         <div className="space-y-4">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-              Jersey Name *
+              Item Name *
             </label>
             <input
               type="text"
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Player Name or Jersey Type"
+              placeholder="Showcase Item Name"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0ed632] focus:border-transparent"
               required
             />
           </div>
-          
-
           
           <div>
             <label htmlFor="season" className="block text-sm font-medium text-gray-700 mb-1">
@@ -202,7 +198,7 @@ export default function JerseyEditor({ jersey, onSuccess }: JerseyEditorProps) {
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Enter jersey description..."
+              placeholder="Enter item description..."
               rows={4}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0ed632] focus:border-transparent"
             />
@@ -212,7 +208,7 @@ export default function JerseyEditor({ jersey, onSuccess }: JerseyEditorProps) {
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <label className="block text-sm font-medium text-gray-700">
-              Jersey Image
+              Item Image
             </label>
             {imageChanged && (
               <button
@@ -228,7 +224,7 @@ export default function JerseyEditor({ jersey, onSuccess }: JerseyEditorProps) {
           <div className="relative border border-gray-200 rounded-lg overflow-hidden h-64">
             <img
               src={previewUrl}
-              alt="Jersey preview"
+              alt="Showcase item preview"
               className="w-full h-full object-contain"
             />
             <div className="absolute bottom-2 right-2 flex space-x-2">

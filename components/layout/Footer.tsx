@@ -79,13 +79,8 @@ const Footer = () => {
             <h3 className="text-lg font-medium text-gray-900 mb-4">Median</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/median/armor" className="text-gray-600 hover:text-[#0ed632] transition-colors">
-                  Armor
-                </Link>
-              </li>
-              <li>
-                <Link href="/median/jersey" className="text-gray-600 hover:text-[#0ed632] transition-colors">
-                  Jersey
+                <Link href="/showcase" className="text-gray-600 hover:text-[#0ed632] transition-colors">
+                  Showcase
                 </Link>
               </li>
             </ul>

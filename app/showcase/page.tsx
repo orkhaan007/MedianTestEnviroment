@@ -7,7 +7,7 @@ import Footer from "@/components/layout/Footer";
 import Loading from "@/components/ui/Loading";
 import { motion } from "framer-motion";
 
-interface Jersey {
+interface Showcase {
   id: string;
   name: string;
   image_url: string;
@@ -16,15 +16,15 @@ interface Jersey {
   created_at: string;
 }
 
-export default function JerseyShowcasePage() {
-  const [jerseys, setJerseys] = useState<Jersey[]>([]);
+export default function ShowcasePage() {
+  const [showcaseItems, setShowcaseItems] = useState<Showcase[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedJersey, setSelectedJersey] = useState<Jersey | null>(null);
+  const [selectedItem, setSelectedItem] = useState<Showcase | null>(null);
   const supabase = createClient();
 
-  // Fetch jerseys from database
+  // Fetch showcase items from database
   useEffect(() => {
-    async function fetchJerseys() {
+    async function fetchShowcaseItems() {
       try {
         const { data, error } = await supabase
           .from("jerseys")
@@ -32,26 +32,26 @@ export default function JerseyShowcasePage() {
           .order("created_at", { ascending: false });
           
         if (error) {
-          console.error("Error fetching jerseys:", error);
+          console.error("Error fetching showcase items:", error);
         } else {
-          setJerseys(data || []);
+          setShowcaseItems(data || []);
         }
       } catch (error) {
-        console.error("Error in fetchJerseys:", error);
+        console.error("Error in fetchShowcaseItems:", error);
       } finally {
         setLoading(false);
       }
     }
 
-    fetchJerseys();
+    fetchShowcaseItems();
   }, [supabase]);
 
-  const handleJerseyClick = (jersey: Jersey) => {
-    setSelectedJersey(jersey);
+  const handleItemClick = (item: Showcase) => {
+    setSelectedItem(item);
   };
 
   const closeModal = () => {
-    setSelectedJersey(null);
+    setSelectedItem(null);
   };
 
   // Handle escape key to close modal
@@ -77,17 +77,17 @@ export default function JerseyShowcasePage() {
         <div className="container mx-auto px-4 py-16">
           <div className="text-center mb-16">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Team Jerseys
+              Team Showcase
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Explore our team's official jerseys collection
+              Explore our team's official collection
             </p>
           </div>
 
-          {/* Jersey grid */}
-          {jerseys.length === 0 ? (
+          {/* Showcase grid */}
+          {showcaseItems.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-xl text-gray-600">No jerseys available yet.</p>
+              <p className="text-xl text-gray-600">No items available yet.</p>
             </div>
           ) : (
             <motion.div 
@@ -96,36 +96,36 @@ export default function JerseyShowcasePage() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
             >
-              {jerseys.map((jersey) => (
+              {showcaseItems.map((item) => (
                 <motion.div
-                  key={jersey.id}
+                  key={item.id}
                   className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300"
                   whileHover={{ scale: 1.03 }}
                   transition={{ duration: 0.2 }}
-                  onClick={() => handleJerseyClick(jersey)}
+                  onClick={() => handleItemClick(item)}
                 >
                   <div className="aspect-square relative bg-gray-100">
                     <img
-                      src={jersey.image_url}
-                      alt={`${jersey.name} Jersey`}
+                      src={item.image_url}
+                      alt={item.name}
                       className="w-full h-full object-cover"
                     />
                   </div>
                   
                   <div className="p-4">
                     <div>
-                      <h3 className="font-medium text-lg truncate">{jersey.name}</h3>
+                      <h3 className="font-medium text-lg truncate">{item.name}</h3>
                     </div>
                     
-                    {jersey.season && (
+                    {item.season && (
                       <p className="text-gray-600 mt-1 text-sm">
-                        Season: {jersey.season}
+                        Season: {item.season}
                       </p>
                     )}
                     
                     <div className="mt-3 flex justify-between items-center">
                       <span className="text-xs text-gray-500">
-                        {new Date(jersey.created_at).toLocaleDateString()}
+                        {new Date(item.created_at).toLocaleDateString()}
                       </span>
                       <button className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full hover:bg-gray-200 transition-colors">
                         View
@@ -139,8 +139,8 @@ export default function JerseyShowcasePage() {
         </div>
       </div>
 
-      {/* Jersey Modal */}
-      {selectedJersey && (
+      {/* Showcase Modal */}
+      {selectedItem && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={closeModal}
@@ -171,31 +171,31 @@ export default function JerseyShowcasePage() {
                 <div className="md:w-1/2">
                   <div className="rounded-xl overflow-hidden shadow-md">
                     <img 
-                      src={selectedJersey.image_url}
-                      alt={`${selectedJersey.name} Jersey`}
+                      src={selectedItem.image_url}
+                      alt={selectedItem.name}
                       className="w-full h-auto object-contain"
                     />
                   </div>
                 </div>
                 
                 <div className="md:w-1/2">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">{selectedJersey.name}</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">{selectedItem.name}</h2>
                   <div className="mb-4">
-                    {selectedJersey.season && (
+                    {selectedItem.season && (
                       <span className="inline-block bg-gray-100 text-gray-800 text-sm px-3 py-1 rounded-full ml-2">
-                        Season: {selectedJersey.season}
+                        Season: {selectedItem.season}
                       </span>
                     )}
                   </div>
                   
                   <div className="prose prose-sm max-w-none text-gray-600">
                     <h4 className="text-gray-900 font-medium">Description:</h4>
-                    <p>{selectedJersey.description || "No description available."}</p>
+                    <p>{selectedItem.description || "No description available."}</p>
                   </div>
                   
                   <div className="mt-6 pt-6 border-t border-gray-100">
                     <p className="text-sm text-gray-500">
-                      Added on {new Date(selectedJersey.created_at).toLocaleDateString()}
+                      Added on {new Date(selectedItem.created_at).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
@@ -204,7 +204,6 @@ export default function JerseyShowcasePage() {
           </motion.div>
         </div>
       )}
-      
       <Footer />
     </>
   );
