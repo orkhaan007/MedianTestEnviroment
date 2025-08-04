@@ -86,8 +86,27 @@ export default function TeamManagementPage() {
           
         if (teamError) {
           console.error("Error fetching team members:", teamError);
+          setTeamMembers([]);
         } else {
-          setTeamMembers(teamData || []);
+          // For each team member with a user_id, fetch their profile
+          const membersWithProfiles = await Promise.all(
+            (teamData || []).map(async (member) => {
+              if (member.user_id) {
+                const { data: profileData, error: profileError } = await supabase
+                  .from("profiles")
+                  .select("*")
+                  .eq("id", member.user_id)
+                  .single();
+                  
+                if (!profileError && profileData) {
+                  return { ...member, profile: profileData };
+                }
+              }
+              return member;
+            })
+          );
+          
+          setTeamMembers(membersWithProfiles || []);
         }
         
         // Fetch users
@@ -233,15 +252,15 @@ export default function TeamManagementPage() {
                   <tr key={member.id}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="relative h-12 w-12 rounded-full overflow-hidden">
-                        {member.image ? (
+                        {member.profile?.avatar_url ? (
                           <Image
-                            src={member.image}
+                            src={member.profile.avatar_url}
                             alt={member.name}
                             fill
                             className="object-cover"
                           />
                         ) : (
-                          <div className="h-full w-full flex items-center justify-center bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
+                          <div className="h-full w-full flex items-center justify-center bg-gradient-to-r from-green-600 via-[#0ed632] to-green-400">
                             <div className="text-xl text-white font-bold">
                               {member.name ? member.name.charAt(0).toUpperCase() : 'U'}
                             </div>

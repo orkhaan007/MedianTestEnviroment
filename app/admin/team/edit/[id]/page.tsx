@@ -9,6 +9,24 @@ import { ArrowLeft } from "lucide-react";
 import Loading from "@/components/ui/Loading";
 import { useParams } from "next/navigation";
 
+interface Profile {
+  id: string;
+  email: string;
+  full_name?: string;
+  avatar_url?: string;
+  banner_url?: string;
+  bio?: string;
+  personal_quote?: string;
+  social_instagram?: string;
+  social_github?: string;
+  social_tiktok?: string;
+  social_youtube?: string;
+  social_steam?: string;
+  social_kick?: string;
+  social_twitch?: string;
+  member_since?: string;
+}
+
 interface TeamMember {
   id: string;
   user_id: string;
@@ -26,6 +44,7 @@ interface TeamMember {
   social_kick?: string;
   social_twitch?: string;
   email?: string;
+  profile?: Profile;
 }
 
 const roleOptions = ["BOSS", "OG", "BIG BROTHER", "BROTHER", "MEMBER"];
@@ -88,12 +107,17 @@ export default function EditTeamMemberPage() {
         
         setTeamMember(data);
         
-        // Get user email from profiles table
+        // Get complete profile data
         const { data: profileData } = await supabase
           .from("profiles")
-          .select("email")
+          .select("*")
           .eq("id", data.user_id)
           .single();
+          
+        // Add profile data to team member
+        if (profileData) {
+          setTeamMember(prev => prev ? { ...prev, profile: profileData } : null);
+        }
         
         // Set form data
         setFormData({
@@ -193,15 +217,15 @@ export default function EditTeamMemberPage() {
           
           <div className="flex items-center">
             <div className="relative h-20 w-20 rounded-full overflow-hidden mr-4">
-              {teamMember.image ? (
+              {teamMember.profile?.avatar_url ? (
                 <Image
-                  src={teamMember.image}
+                  src={teamMember.profile.avatar_url}
                   alt={teamMember.name}
                   fill
                   className="object-cover"
                 />
               ) : (
-                <div className="h-full w-full flex items-center justify-center bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
+                <div className="h-full w-full flex items-center justify-center bg-gradient-to-r from-green-600 via-[#0ed632] to-green-400">
                   <div className="text-xl text-white font-bold">
                     {teamMember.name ? teamMember.name.charAt(0).toUpperCase() : 'U'}
                   </div>

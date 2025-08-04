@@ -16,6 +16,7 @@ interface TeamMember {
   created_at?: string;
   profile?: {
     full_name?: string;
+    avatar_url?: string;
     banner_url?: string;
     bio?: string;
     personal_quote?: string;
@@ -60,7 +61,10 @@ const formatSocialLink = (link: string, platform: string): string => {
 };
 
 export default function TeamMemberCard({ member }: TeamMemberCardProps) {
-  const { id, name, role, image, jersey_number, profile, created_at } = member;
+  const { id, name, role, jersey_number, profile, created_at } = member;
+  
+  // Use profile avatar_url if available, otherwise use null
+  const avatarUrl = profile?.avatar_url || null;
   
   const memberSince = created_at 
     ? new Date(created_at).toLocaleDateString('en-US', {
@@ -88,10 +92,10 @@ export default function TeamMemberCard({ member }: TeamMemberCardProps) {
       className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
     >
       <div className="relative h-64 w-full group overflow-hidden">
-        {image ? (
+        {avatarUrl ? (
           <>
             <Image
-              src={image}
+              src={avatarUrl}
               alt={name}
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-110"
@@ -99,7 +103,7 @@ export default function TeamMemberCard({ member }: TeamMemberCardProps) {
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </>
         ) : (
-          <div className="h-full w-full flex items-center justify-center bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-gradient-x">
+          <div className="h-full w-full flex items-center justify-center bg-gradient-to-r from-green-600 via-[#0ed632] to-green-400 animate-gradient-x">
             <div className="text-6xl text-white font-bold drop-shadow-lg">
               {name ? name.charAt(0).toUpperCase() : 'U'}
             </div>
@@ -128,7 +132,14 @@ export default function TeamMemberCard({ member }: TeamMemberCardProps) {
           {profile?.full_name || name}
         </h3>
         
-
+        {memberSince && (
+          <p className="text-sm text-gray-500 mb-3 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Member since: {memberSince}
+          </p>
+        )}
         
         {/* Social Links */}
         {hasSocialLinks && (

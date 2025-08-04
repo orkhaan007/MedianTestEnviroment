@@ -154,8 +154,7 @@ export default function AddTeamMemberPage() {
           user_id: selectedUser.id,
           name: selectedUser.user_metadata?.full_name || selectedUser.email.split("@")[0],
           role: formData.role,
-          jersey_number: formData.jersey_number,
-          image: selectedUser.user_metadata?.avatar_url || "/team/placeholder.svg"
+          jersey_number: formData.jersey_number
         }])
         .select();
         
@@ -217,12 +216,20 @@ export default function AddTeamMemberPage() {
                     onClick={() => handleSelectUser(user)}
                   >
                     <div className="relative h-10 w-10 rounded-full overflow-hidden mr-3">
-                      <Image
-                        src={user.user_metadata?.avatar_url || "/team/placeholder.svg"}
-                        alt={user.user_metadata?.full_name || user.email}
-                        fill
-                        className="object-cover"
-                      />
+                      {user.user_metadata?.avatar_url ? (
+                        <Image
+                          src={user.user_metadata.avatar_url}
+                          alt={user.user_metadata?.full_name || user.email}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center bg-gradient-to-r from-green-600 via-[#0ed632] to-green-400">
+                          <div className="text-sm text-white font-bold">
+                            {(user.user_metadata?.full_name || user.email).charAt(0).toUpperCase()}
+                          </div>
+                        </div>
+                      )}
                     </div>
                     <div className="flex-1">
                       <div className="font-medium text-gray-900">
@@ -252,12 +259,20 @@ export default function AddTeamMemberPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="flex items-center mb-6">
                 <div className="relative h-16 w-16 rounded-full overflow-hidden mr-4">
-                  <Image
-                    src={selectedUser.user_metadata?.avatar_url || "/team/placeholder.svg"}
-                    alt={selectedUser.user_metadata?.full_name || selectedUser.email}
-                    fill
-                    className="object-cover"
-                  />
+                  {selectedUser.user_metadata?.avatar_url ? (
+                    <Image
+                      src={selectedUser.user_metadata.avatar_url}
+                      alt={selectedUser.user_metadata?.full_name || selectedUser.email}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center bg-gradient-to-r from-green-600 via-[#0ed632] to-green-400">
+                      <div className="text-xl text-white font-bold">
+                        {(selectedUser.user_metadata?.full_name || selectedUser.email).charAt(0).toUpperCase()}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div>
                   <div className="font-medium text-lg text-gray-900">

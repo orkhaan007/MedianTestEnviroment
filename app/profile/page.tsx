@@ -141,7 +141,7 @@ export default function ProfilePage() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="bg-gradient-to-r from-[#1a2a6c] via-[#b21f1f] to-[#0ed632] h-full w-full animate-gradient-x">
+              <div className="bg-gradient-to-r from-green-800 via-green-600 to-[#0ed632] h-full w-full animate-gradient-x">
                 {/* Overlay with slight transparency for better text visibility */}
                 <div className="absolute inset-0 bg-black bg-opacity-30"></div>
               </div>
@@ -167,7 +167,7 @@ export default function ProfilePage() {
           <div className="px-8 py-6 relative">
             {/* Avatar */}
             <div className="absolute -top-16 left-8">
-              <div className="h-32 w-32 rounded-full border-4 border-white bg-gray-200 flex items-center justify-center overflow-hidden shadow-lg">
+              <div className="h-32 w-32 rounded-full border-4 border-white flex items-center justify-center overflow-hidden shadow-lg">
                 {user.user_metadata?.avatar_url ? (
                   <img 
                     src={user.user_metadata.avatar_url} 
@@ -175,9 +175,11 @@ export default function ProfilePage() {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <span className="text-4xl text-gray-400 font-bold">
-                    {(user.user_metadata?.full_name?.[0] || user.email[0]).toUpperCase()}
-                  </span>
+                  <div className="h-full w-full flex items-center justify-center bg-gradient-to-r from-green-600 via-[#0ed632] to-green-400">
+                    <span className="text-4xl text-white font-bold">
+                      {(user.user_metadata?.full_name?.[0] || user.email[0]).toUpperCase()}
+                    </span>
+                  </div>
                 )}
               </div>
             </div>

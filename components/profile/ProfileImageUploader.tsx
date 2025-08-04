@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 
 interface ProfileImageUploaderProps {
@@ -20,7 +20,24 @@ export default function ProfileImageUploader({
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl || null);
+  const [userInitial, setUserInitial] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Get user data to display the correct initial
+  useEffect(() => {
+    async function getUserData() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        // Get first letter of full name or email
+        const initial = user.user_metadata?.full_name?.[0] || user.email?.[0] || "";
+        setUserInitial(initial.toUpperCase());
+      }
+    }
+    
+    getUserData();
+  }, []);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -180,16 +197,18 @@ export default function ProfileImageUploader({
           </>
         ) : (
           type === "banner" ? (
-            <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-[#0ed632] h-full w-full animate-gradient-x flex items-center justify-center">
+            <div className="bg-gradient-to-r from-green-800 via-green-600 to-[#0ed632] h-full w-full animate-gradient-x flex items-center justify-center">
               <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
                 <span className="text-white text-sm font-medium">Add Banner Image</span>
               </div>
             </div>
           ) : (
-            <div className="bg-gray-200 h-full w-full flex items-center justify-center">
-              <span className="text-4xl text-gray-400 font-bold">
-                {currentImageUrl ? "" : "U"}
-              </span>
+            <div className="bg-gradient-to-r from-green-600 via-[#0ed632] to-green-400 h-full w-full flex items-center justify-center">
+              <div className="flex items-center justify-center w-full h-full">
+                <span className="text-4xl text-white font-bold">
+                  {currentImageUrl ? "" : userInitial}
+                </span>
+              </div>
               <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
                 <span className="text-white text-sm font-medium">Add Photo</span>
               </div>

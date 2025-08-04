@@ -290,7 +290,7 @@ export default function ProfileSettingsPage() {
           <div className="px-8 py-6 relative">
             {/* Avatar */}
             <div className="absolute -top-16 left-8">
-              <div className="h-32 w-32 rounded-full border-4 border-white bg-gray-200 overflow-hidden shadow-lg relative">
+              <div className="h-32 w-32 rounded-full border-4 border-white overflow-hidden shadow-lg relative flex items-center justify-center bg-gradient-to-r from-green-600 via-[#0ed632] to-green-400">
                 <ProfileImageUploader
                   type="avatar"
                   currentImageUrl={avatarUrl}

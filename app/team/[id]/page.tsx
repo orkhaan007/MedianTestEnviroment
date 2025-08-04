@@ -27,6 +27,7 @@ interface Profile {
   id: string;
   email: string;
   full_name?: string;
+  avatar_url?: string;
   banner_url?: string;
   bio?: string;
   personal_quote?: string;
@@ -164,7 +165,7 @@ export default function TeamMemberPage() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="bg-gradient-to-r from-[#1a2a6c] via-[#b21f1f] to-[#0ed632] h-full w-full animate-gradient-x">
+                <div className="bg-gradient-to-r from-green-800 via-green-600 to-[#0ed632] h-full w-full animate-gradient-x">
                   {/* Overlay with slight transparency for better text visibility */}
                   <div className="absolute inset-0 bg-black bg-opacity-30"></div>
                 </div>
@@ -174,17 +175,19 @@ export default function TeamMemberPage() {
               <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
                 <div className="flex items-center">
                   {/* Profile image/avatar */}
-                  <div className="mr-4 h-20 w-20 rounded-full border-2 border-white overflow-hidden flex-shrink-0 bg-gray-200 flex items-center justify-center shadow-lg">
-                    {member.image ? (
+                  <div className="mr-4 h-20 w-20 rounded-full border-2 border-white overflow-hidden flex-shrink-0 flex items-center justify-center shadow-lg">
+                    {profile?.avatar_url ? (
                       <img 
-                        src={member.image} 
+                        src={profile.avatar_url} 
                         alt={member.name} 
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <span className="text-3xl text-gray-600 font-bold">
-                        {member.name[0].toUpperCase()}
-                      </span>
+                      <div className="h-full w-full flex items-center justify-center bg-gradient-to-r from-green-600 via-[#0ed632] to-green-400">
+                        <span className="text-3xl text-white font-bold">
+                          {member.name[0].toUpperCase()}
+                        </span>
+                      </div>
                     )}
                   </div>
                   
