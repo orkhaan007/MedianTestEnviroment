@@ -7,7 +7,7 @@ import { ArrowLeft, Instagram, Github } from "lucide-react";
 import { FaTiktok, FaYoutube, FaSteam, FaTwitch } from "react-icons/fa";
 import { SiKick } from "react-icons/si";
 import { useParams, useRouter } from "next/navigation";
-import { roleColors } from "@/utils/team/data";
+import { roleColors, teamMembers } from "@/utils/team/data";
 import { createClient } from "@/utils/supabase/client";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -20,6 +20,7 @@ interface TeamMember {
   role: string;
   jersey_number?: string;
   image?: string;
+  created_at: string;
 }
 
 interface Profile {
@@ -211,9 +212,9 @@ export default function TeamMemberPage() {
             
             <div className="p-6 md:p-8">
               {/* Member since info */}
-              {profile?.member_since && (
+              {member.created_at && (
                 <div className="mb-6 inline-block bg-gray-50 px-4 py-2 rounded-lg text-sm text-gray-600 shadow-sm">
-                  <span className="font-medium">Member since:</span> {new Date(profile.member_since).toLocaleDateString('en-US', {
+                  <span className="font-medium">Member since:</span> {new Date(member.created_at).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric'

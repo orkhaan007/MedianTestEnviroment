@@ -62,17 +62,13 @@ const formatSocialLink = (link: string, platform: string): string => {
 export default function TeamMemberCard({ member }: TeamMemberCardProps) {
   const { id, name, role, image, jersey_number, profile, created_at } = member;
   
-  const memberSince = profile?.member_since 
-    ? new Date(profile.member_since).toLocaleDateString('en-US', {
+  const memberSince = created_at 
+    ? new Date(created_at).toLocaleDateString('en-US', {
         year: 'numeric',
-        month: 'short'
+        month: 'long',
+        day: 'numeric'
       })
-    : created_at 
-      ? new Date(created_at).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'short'
-        }) 
-      : null;
+    : null;
   
   const hasSocialLinks = profile && (
     profile.social_instagram || 
@@ -132,14 +128,7 @@ export default function TeamMemberCard({ member }: TeamMemberCardProps) {
           {profile?.full_name || name}
         </h3>
         
-        {memberSince && (
-          <p className="text-sm text-gray-500 mb-3 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            Since {memberSince}
-          </p>
-        )}
+
         
         {/* Social Links */}
         {hasSocialLinks && (
@@ -192,12 +181,17 @@ export default function TeamMemberCard({ member }: TeamMemberCardProps) {
           </div>
         )}
         
-        <Link 
-          href={`/team/${id}`}
-          className="mt-4 inline-block text-[#0ed632] hover:underline"
-        >
-          View Profile
-        </Link>
+        <div className="mt-4 flex justify-between items-center">
+          <span className="text-xs text-gray-500">
+            {memberSince}
+          </span>
+          <Link 
+            href={`/team/${id}`}
+            className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full hover:bg-gray-200 transition-colors"
+          >
+            View
+          </Link>
+        </div>
       </div>
     </motion.div>
   );
