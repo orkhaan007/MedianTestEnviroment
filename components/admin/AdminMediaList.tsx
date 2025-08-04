@@ -2,46 +2,42 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { Edit, Trash2 } from "lucide-react";
 import { deleteMediaAdmin } from "@/utils/admin/mediaAdmin";
 import { MediaData } from "@/types/gallery";
+import { extractYoutubeVideoId, getYoutubeThumbnailUrl } from "@/utils/youtube";
 
 interface AdminMediaListProps {
   mediaItems: MediaData[];
+  onMediaDeleted: (mediaId: string) => void;
 }
 
-export default function AdminMediaList({ mediaItems }: AdminMediaListProps) {
-  const [items, setItems] = useState<MediaData[]>(mediaItems);
+export default function AdminMediaList({ mediaItems, onMediaDeleted }: AdminMediaListProps) {
   const [activeTab, setActiveTab] = useState('all');
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   
-  const extractYoutubeVideoId = (url: string): string | null => {
-    if (url.includes('/embed/')) {
-      return url.split('/embed/')[1]?.split('?')[0];
-    }
-    return null;
-  };
-  
-  const getYoutubeThumbnailUrl = (videoId: string): string => {
-    return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
-  };
   
   const filteredItems = activeTab === 'all' 
-    ? items 
-    : items.filter(item => item.media_type === activeTab);
+    ? mediaItems 
+    : mediaItems.filter((item: MediaData) => item.media_type === activeTab);
   
   const handleDelete = async (mediaId: string) => {
     if (isDeleting) return;
     
-    try {
-      setIsDeleting(mediaId);
-      await deleteMediaAdmin(mediaId);
-      
-      setItems(prevItems => prevItems.filter(item => item.id !== mediaId));
-    } catch (error) {
-      console.error("Error deleting media:", error);
-      alert("Failed to delete media. Please try again.");
-    } finally {
-      setIsDeleting(null);
+    if (confirm("Are you sure you want to delete this media item?")) {
+      try {
+        setIsDeleting(mediaId);
+        await deleteMediaAdmin(mediaId);
+        
+        // Call the callback to update the parent component's state
+        onMediaDeleted(mediaId);
+      } catch (error) {
+        console.error("Error deleting media:", error);
+        alert("Failed to delete media. Please try again.");
+      } finally {
+        setIsDeleting(null);
+      }
     }
   };
   
@@ -54,7 +50,7 @@ export default function AdminMediaList({ mediaItems }: AdminMediaListProps) {
               onClick={() => setActiveTab('all')} 
               className={`inline-block p-4 border-b-2 rounded-t-lg ${activeTab === 'all' ? 'border-[#0ed632] text-[#0ed632]' : 'border-transparent hover:text-gray-600 hover:border-gray-300'}`}
             >
-              All Media ({items.length})
+              All Media ({mediaItems.length})
             </button>
           </li>
           <li className="mr-2">
@@ -62,7 +58,7 @@ export default function AdminMediaList({ mediaItems }: AdminMediaListProps) {
               onClick={() => setActiveTab('image')} 
               className={`inline-block p-4 border-b-2 rounded-t-lg ${activeTab === 'image' ? 'border-[#0ed632] text-[#0ed632]' : 'border-transparent hover:text-gray-600 hover:border-gray-300'}`}
             >
-              Images ({items.filter(item => item.media_type === 'image').length})
+              Images ({mediaItems.filter((item: MediaData) => item.media_type === 'image').length})
             </button>
           </li>
           <li className="mr-2">
@@ -70,7 +66,7 @@ export default function AdminMediaList({ mediaItems }: AdminMediaListProps) {
               onClick={() => setActiveTab('youtube')} 
               className={`inline-block p-4 border-b-2 rounded-t-lg ${activeTab === 'youtube' ? 'border-[#0ed632] text-[#0ed632]' : 'border-transparent hover:text-gray-600 hover:border-gray-300'}`}
             >
-              YouTube Videos ({items.filter(item => item.media_type === 'youtube').length})
+              YouTube Videos ({mediaItems.filter((item: MediaData) => item.media_type === 'youtube').length})
             </button>
           </li>
         </ul>
@@ -151,7 +147,9 @@ export default function AdminMediaList({ mediaItems }: AdminMediaListProps) {
                   </td>
                   <td className="px-6 py-4">
                     <div className="text-sm font-medium text-gray-900">{item.title || 'Untitled'}</div>
-                    <div className="text-sm text-gray-500">{item.description || 'No description'}</div>
+                    <div className="text-sm text-gray-500 line-clamp-2 max-w-xs">
+                      {item.description || 'No description'}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900 capitalize">{item.media_type === 'youtube' ? 'YouTube' : item.media_type}</div>
@@ -162,14 +160,26 @@ export default function AdminMediaList({ mediaItems }: AdminMediaListProps) {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(item.created_at).toISOString().split('T')[0]}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      disabled={isDeleting === item.id}
-                      className={`text-red-600 hover:text-red-900 ${isDeleting === item.id ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      {isDeleting === item.id ? 'Deleting...' : 'Delete'}
-                    </button>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex space-x-2 justify-end">
+                      <Link 
+                        href={`/admin/content/edit/${item.id}`}
+                        className="text-indigo-600 hover:text-indigo-900"
+                      >
+                        <Edit className="h-5 w-5" />
+                      </Link>
+                      <button 
+                        onClick={() => handleDelete(item.id)}
+                        disabled={isDeleting === item.id}
+                        className={`text-red-600 hover:text-red-900 ${isDeleting === item.id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      >
+                        {isDeleting === item.id ? (
+                          <div className="h-5 w-5 animate-pulse">...</div>
+                        ) : (
+                          <Trash2 className="h-5 w-5" />
+                        )}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
