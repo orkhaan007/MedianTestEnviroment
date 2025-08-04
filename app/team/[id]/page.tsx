@@ -39,6 +39,31 @@ interface Profile {
   member_since?: string;
 }
 
+const formatSocialLink = (link: string, platform: string): string => {
+  if (link.startsWith('http://') || link.startsWith('https://')) {
+    return link;
+  }
+  
+  switch (platform) {
+    case 'tiktok':
+      return `https://www.tiktok.com/${link.startsWith('@') ? link : '@' + link}`;
+    case 'instagram':
+      return `https://www.instagram.com/${link.startsWith('@') ? link.substring(1) : link}`;
+    case 'youtube':
+      return `https://www.youtube.com/${link.startsWith('@') ? link : '@' + link}`;
+    case 'github':
+      return `https://github.com/${link}`;
+    case 'steam':
+      return `https://steamcommunity.com/id/${link}`;
+    case 'kick':
+      return `https://kick.com/${link}`;
+    case 'twitch':
+      return `https://www.twitch.tv/${link}`;
+    default:
+      return link;
+  }
+};
+
 export default function TeamMemberPage() {
   const params = useParams();
   const router = useRouter();
@@ -235,7 +260,7 @@ export default function TeamMemberPage() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                   {profile?.social_tiktok && (
                     <a 
-                      href={profile.social_tiktok} 
+                      href={formatSocialLink(profile.social_tiktok, 'tiktok')} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors group"
@@ -248,7 +273,7 @@ export default function TeamMemberPage() {
                   )}
                   {profile?.social_instagram && (
                     <a 
-                      href={profile.social_instagram} 
+                      href={formatSocialLink(profile.social_instagram, 'instagram')} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors group"
@@ -261,7 +286,7 @@ export default function TeamMemberPage() {
                   )}
                   {profile?.social_youtube && (
                     <a 
-                      href={profile.social_youtube} 
+                      href={formatSocialLink(profile.social_youtube, 'youtube')} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors group"
@@ -274,7 +299,7 @@ export default function TeamMemberPage() {
                   )}
                   {profile?.social_github && (
                     <a 
-                      href={profile.social_github} 
+                      href={formatSocialLink(profile.social_github, 'github')} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors group"
@@ -287,7 +312,7 @@ export default function TeamMemberPage() {
                   )}
                   {profile?.social_steam && (
                     <a 
-                      href={profile.social_steam} 
+                      href={formatSocialLink(profile.social_steam, 'steam')} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors group"
@@ -300,7 +325,7 @@ export default function TeamMemberPage() {
                   )}
                   {profile?.social_kick && (
                     <a 
-                      href={profile.social_kick} 
+                      href={formatSocialLink(profile.social_kick, 'kick')} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors group"
@@ -313,7 +338,7 @@ export default function TeamMemberPage() {
                   )}
                   {profile?.social_twitch && (
                     <a 
-                      href={profile.social_twitch} 
+                      href={formatSocialLink(profile.social_twitch, 'twitch')} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors group"

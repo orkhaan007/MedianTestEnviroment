@@ -34,10 +34,34 @@ interface TeamMemberCardProps {
   member: TeamMember;
 }
 
+const formatSocialLink = (link: string, platform: string): string => {
+  if (link.startsWith('http://') || link.startsWith('https://')) {
+    return link;
+  }
+  
+  switch (platform) {
+    case 'tiktok':
+      return `https://www.tiktok.com/${link.startsWith('@') ? link : '@' + link}`;
+    case 'instagram':
+      return `https://www.instagram.com/${link.startsWith('@') ? link.substring(1) : link}`;
+    case 'youtube':
+      return `https://www.youtube.com/${link.startsWith('@') ? link : '@' + link}`;
+    case 'github':
+      return `https://github.com/${link}`;
+    case 'steam':
+      return `https://steamcommunity.com/id/${link}`;
+    case 'kick':
+      return `https://kick.com/${link}`;
+    case 'twitch':
+      return `https://www.twitch.tv/${link}`;
+    default:
+      return link;
+  }
+};
+
 export default function TeamMemberCard({ member }: TeamMemberCardProps) {
   const { id, name, role, image, jersey_number, profile, created_at } = member;
   
-  // Format the member since date if available, prioritizing profile.member_since over created_at
   const memberSince = profile?.member_since 
     ? new Date(profile.member_since).toLocaleDateString('en-US', {
         year: 'numeric',
@@ -50,7 +74,6 @@ export default function TeamMemberCard({ member }: TeamMemberCardProps) {
         }) 
       : null;
   
-  // Check if the member has any social links
   const hasSocialLinks = profile && (
     profile.social_instagram || 
     profile.social_github ||
@@ -124,43 +147,43 @@ export default function TeamMemberCard({ member }: TeamMemberCardProps) {
             <p className="text-xs text-gray-500 mb-2">Connect</p>
             <div className="flex flex-wrap gap-2">
               {profile?.social_tiktok && (
-                <a href={profile.social_tiktok} target="_blank" rel="noopener noreferrer" 
+                <a href={formatSocialLink(profile.social_tiktok, 'tiktok')} target="_blank" rel="noopener noreferrer" 
                   className="flex items-center justify-center h-8 w-8 rounded-full bg-gray-100 text-gray-600 hover:bg-black hover:text-white transition-all duration-200">
                   <FaTiktok size={16} />
                 </a>
               )}
               {profile?.social_instagram && (
-                <a href={profile.social_instagram} target="_blank" rel="noopener noreferrer" 
+                <a href={formatSocialLink(profile.social_instagram, 'instagram')} target="_blank" rel="noopener noreferrer" 
                   className="flex items-center justify-center h-8 w-8 rounded-full bg-gray-100 text-gray-600 hover:bg-gradient-to-r hover:from-[#833AB4] hover:via-[#FD1D1D] hover:to-[#FCAF45] hover:text-white transition-all duration-200">
                   <Instagram size={16} />
                 </a>
               )}
               {profile?.social_youtube && (
-                <a href={profile.social_youtube} target="_blank" rel="noopener noreferrer" 
+                <a href={formatSocialLink(profile.social_youtube, 'youtube')} target="_blank" rel="noopener noreferrer" 
                   className="flex items-center justify-center h-8 w-8 rounded-full bg-gray-100 text-gray-600 hover:bg-[#FF0000] hover:text-white transition-all duration-200">
                   <FaYoutube size={16} />
                 </a>
               )}
               {profile?.social_github && (
-                <a href={profile.social_github} target="_blank" rel="noopener noreferrer" 
+                <a href={formatSocialLink(profile.social_github, 'github')} target="_blank" rel="noopener noreferrer" 
                   className="flex items-center justify-center h-8 w-8 rounded-full bg-gray-100 text-gray-600 hover:bg-[#333] hover:text-white transition-all duration-200">
                   <Github size={16} />
                 </a>
               )}
               {profile?.social_steam && (
-                <a href={profile.social_steam} target="_blank" rel="noopener noreferrer" 
+                <a href={formatSocialLink(profile.social_steam, 'steam')} target="_blank" rel="noopener noreferrer" 
                   className="flex items-center justify-center h-8 w-8 rounded-full bg-gray-100 text-gray-600 hover:bg-[#1b2838] hover:text-white transition-all duration-200">
                   <FaSteam size={16} />
                 </a>
               )}
               {profile?.social_kick && (
-                <a href={profile.social_kick} target="_blank" rel="noopener noreferrer" 
+                <a href={formatSocialLink(profile.social_kick, 'kick')} target="_blank" rel="noopener noreferrer" 
                   className="flex items-center justify-center h-8 w-8 rounded-full bg-gray-100 text-gray-600 hover:bg-[#53fc18] hover:text-black transition-all duration-200">
                   <SiKick size={16} />
                 </a>
               )}
               {profile?.social_twitch && (
-                <a href={profile.social_twitch} target="_blank" rel="noopener noreferrer" 
+                <a href={formatSocialLink(profile.social_twitch, 'twitch')} target="_blank" rel="noopener noreferrer" 
                   className="flex items-center justify-center h-8 w-8 rounded-full bg-gray-100 text-gray-600 hover:bg-[#6441a5] hover:text-white transition-all duration-200">
                   <FaTwitch size={16} />
                 </a>
