@@ -123,6 +123,16 @@ const Header = () => {
                         </svg>
                         My Profile
                       </Link>
+                      <Link 
+                        href="/application/status" 
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:text-[#0ed632] hover:bg-[#f0fff0]"
+                        onClick={() => setProfileOpen(false)}
+                      >
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Application Status
+                      </Link>
 
 
                       <Link 
@@ -238,6 +248,13 @@ const Header = () => {
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       My Profile
+                    </Link>
+                    <Link 
+                      href="/application/status" 
+                      className="block px-6 py-2 text-gray-600 hover:text-[#0ed632] hover:bg-[#f0fff0]"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Application Status
                     </Link>
 
 
