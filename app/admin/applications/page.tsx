@@ -5,6 +5,8 @@ import { createClient } from "@/utils/supabase/client";
 import { checkAdminServerSide } from "@/utils/admin/serverAdminCheck";
 import AdminApplicationList from "@/components/admin/AdminApplicationList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Link from "next/link";
+import { ArrowLeft, Search } from "lucide-react";
 
 interface Application {
   id: string;
@@ -23,6 +25,7 @@ export default function AdminApplicationsPage() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("pending");
+  const [searchQuery, setSearchQuery] = useState("");
   const supabase = createClient();
 
   useEffect(() => {
@@ -68,9 +71,19 @@ export default function AdminApplicationsPage() {
     );
   };
 
-  const pendingApplications = applications.filter(app => app.status === "pending");
-  const acceptedApplications = applications.filter(app => app.status === "accepted");
-  const rejectedApplications = applications.filter(app => app.status === "rejected");
+  // Filter applications based on search query first
+  const filteredApplications = applications.filter(
+    (app) =>
+      app.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      app.discord_nick?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      app.discord_id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      app.steam_profile?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Then filter by status
+  const pendingApplications = filteredApplications.filter(app => app.status === "pending");
+  const acceptedApplications = filteredApplications.filter(app => app.status === "accepted");
+  const rejectedApplications = filteredApplications.filter(app => app.status === "rejected");
 
   if (loading) {
     return (
@@ -82,8 +95,24 @@ export default function AdminApplicationsPage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex items-center mb-8">
+        <Link href="/admin" className="mr-4">
+          <ArrowLeft className="h-5 w-5 text-gray-600 hover:text-[#0ed632]" />
+        </Link>
         <h1 className="text-3xl font-bold text-gray-900">Applications Management</h1>
+      </div>
+      
+      <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="relative w-full md:w-64">
+          <input
+            type="text"
+            placeholder="Search applications..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0ed632] focus:border-transparent"
+          />
+          <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+        </div>
       </div>
       
       <Tabs defaultValue="pending" value={activeTab} onValueChange={setActiveTab}>
@@ -101,7 +130,7 @@ export default function AdminApplicationsPage() {
         </TabsList>
         
         <TabsContent value="pending" className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Bekleyen Başvurular</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Pending Applications</h2>
           {pendingApplications.length > 0 ? (
             <AdminApplicationList 
               applications={pendingApplications} 
@@ -109,13 +138,13 @@ export default function AdminApplicationsPage() {
             />
           ) : (
             <div className="text-center py-12 text-gray-500">
-              Bekleyen başvuru bulunmamaktadır.
+              No pending applications found.
             </div>
           )}
         </TabsContent>
         
         <TabsContent value="accepted" className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Kabul Edilen Başvurular</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Accepted Applications</h2>
           {acceptedApplications.length > 0 ? (
             <AdminApplicationList 
               applications={acceptedApplications} 
@@ -123,13 +152,13 @@ export default function AdminApplicationsPage() {
             />
           ) : (
             <div className="text-center py-12 text-gray-500">
-              Kabul edilen başvuru bulunmamaktadır.
+              No accepted applications found.
             </div>
           )}
         </TabsContent>
         
         <TabsContent value="rejected" className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Reddedilen Başvurular</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Rejected Applications</h2>
           {rejectedApplications.length > 0 ? (
             <AdminApplicationList 
               applications={rejectedApplications} 
@@ -137,7 +166,7 @@ export default function AdminApplicationsPage() {
             />
           ) : (
             <div className="text-center py-12 text-gray-500">
-              Reddedilen başvuru bulunmamaktadır.
+              No rejected applications found.
             </div>
           )}
         </TabsContent>

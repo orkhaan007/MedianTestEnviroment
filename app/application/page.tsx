@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import ApplicationForm from "@/components/application/ApplicationForm";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
 
 export default function ApplicationPage() {
   const [loading, setLoading] = useState(true);
@@ -48,9 +50,13 @@ export default function ApplicationPage() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0ed632]"></div>
-      </div>
+      <>
+        <Header />
+        <div className="flex justify-center items-center min-h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0ed632]"></div>
+        </div>
+        <Footer />
+      </>
     );
   }
 
@@ -59,8 +65,12 @@ export default function ApplicationPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <ApplicationForm />
-    </div>
+    <>
+      <Header />
+      <div className="container mx-auto px-4 py-12">
+        <ApplicationForm />
+      </div>
+      <Footer />
+    </>
   );
 }
