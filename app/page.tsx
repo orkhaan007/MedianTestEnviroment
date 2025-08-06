@@ -1,491 +1,582 @@
 "use client";
 
-import Layout from "../components/layout/Layout";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { FaGamepad, FaTrophy, FaUsers, FaHeadset, FaDiscord, FaTiktok, FaYoutube, FaAngleRight, FaFire, FaRocket, FaChevronDown } from "react-icons/fa";
-import { SiEpicgames, SiSteam, SiTwitch } from "react-icons/si";
 import Image from "next/image";
+import { motion } from "framer-motion";
+import { FaDiscord, FaSteam, FaUsers, FaGamepad, FaChevronRight, FaShieldAlt, FaUserPlus, FaArrowRight, FaSignInAlt } from "react-icons/fa";
+import { RiSwordFill } from "react-icons/ri";
+import { GiTrophy } from "react-icons/gi";
+import { IoGameController } from "react-icons/io5";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+
+
+interface DiscordMember {
+  id: string;
+  username: string;
+  status: string;
+  avatar_url?: string;
+  game?: {
+    name: string;
+  };
+}
+
+interface DiscordStats {
+  name?: string;
+  approximate_member_count: number;
+  approximate_presence_count: number;
+  members?: DiscordMember[];
+  instant_invite?: string;
+  icon_url?: string;
+}
 
 export default function Home() {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [activeTab, setActiveTab] = useState('tournaments');
-  const [animateCount, setAnimateCount] = useState(false);
+  const [discordStats, setDiscordStats] = useState<DiscordStats | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Initial load animation
-    setIsLoaded(true);
-    
-    // Trigger count animation when page loads
-    const timer = setTimeout(() => {
-      setAnimateCount(true);
-    }, 1000);
-    
-    return () => clearTimeout(timer);
+    async function fetchDiscordStats() {
+      try {
+        const response = await fetch("/api/discord-stats?server=median");
+        if (!response.ok) {
+          throw new Error("Failed to fetch Discord stats");
+        }
+        const data = await response.json();
+        setDiscordStats(data);
+      } catch (error) {
+        console.error("Error fetching Discord stats:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchDiscordStats();
   }, []);
 
+  // Animation variants
+  const fadeIn = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+      },
+    },
+  };
+
   return (
-    <Layout>
-      {/* Hero Section with Futuristic Gaming Theme */}
-      <div className="relative h-screen max-h-[900px] bg-gradient-to-b from-[#050A18] via-[#0B1933] to-[#050A18] overflow-hidden">
-        {/* Animated background with particles */}
-        <div className="absolute inset-0 bg-[url('/Logos/MedianLogo.png')] bg-center bg-no-repeat opacity-5"></div>
+    <>
+      <Header />
+      <main className="min-h-screen bg-white">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#0ed632]/5 via-white to-gray-50">
+        <div className="absolute top-0 left-0 w-full h-full opacity-10">
+          <div className="absolute top-10 left-10 w-20 h-20 rounded-full bg-[#0ed632]/30 blur-xl"></div>
+          <div className="absolute bottom-10 right-10 w-32 h-32 rounded-full bg-[#0ed632]/20 blur-xl"></div>
+          <div className="absolute top-1/2 right-1/4 w-24 h-24 rounded-full bg-[#0ed632]/20 blur-xl"></div>
+        </div>
         
-        {/* Animated gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-radial from-transparent via-[#0B1933]/80 to-[#050A18] opacity-90"></div>
-        
-        {/* Animated grid lines */}
-        <div className="absolute inset-0 bg-[url('/images/grid.svg')] bg-center opacity-10"></div>
-        
-        {/* Glowing accent elements */}
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF4D4D] via-[#7928CA] to-[#00C6FF] opacity-80"></div>
-        <div className="absolute top-1 left-0 w-full h-[1px] bg-white/10"></div>
-        
-        {/* Hero content with advanced animation */}
-        <div className="container mx-auto px-4 h-full flex items-center relative z-10">
-          <div className="max-w-6xl mx-auto w-full">
-            <div className="flex flex-col md:flex-row items-center md:justify-between gap-12">
-              {/* Left content */}
-              <div className={`md:w-1/2 transform transition-all duration-1000 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-                <div className="relative">
-                  <div className="absolute -top-10 -left-10 w-20 h-20 bg-gradient-to-br from-[#FF4D4D] to-[#7928CA] rounded-full blur-3xl opacity-20"></div>
-                  <div className="absolute -bottom-10 -right-10 w-20 h-20 bg-gradient-to-br from-[#7928CA] to-[#00C6FF] rounded-full blur-3xl opacity-20"></div>
-                  
-                  <h1 className="text-6xl md:text-7xl lg:text-8xl font-black mb-2 text-white tracking-tighter">
-                    <span className="relative">
-                      <span className="absolute -inset-1 bg-gradient-to-r from-[#FF4D4D] via-[#7928CA] to-[#00C6FF] blur-lg opacity-30"></span>
-                      <span className="relative bg-clip-text text-transparent bg-gradient-to-r from-[#FF4D4D] via-[#7928CA] to-[#00C6FF]">MEDIAN</span>
-                    </span>
-                  </h1>
-                  
-                  <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">
-                    GAMING <span className="text-[#7928CA]">COMMUNITY</span>
-                  </h2>
-                  
-                  <p className="text-xl text-gray-300 mb-10 max-w-2xl leading-relaxed">
-                    Experience gaming like never before. Join our elite community of passionate gamers, compete in tournaments, and connect with players worldwide.                    
-                  </p>
-                  
-                  <div className="flex flex-wrap gap-6">
-                    <Link href="/about" className="group relative px-8 py-4 bg-gradient-to-r from-[#FF4D4D] to-[#7928CA] text-white font-bold rounded-lg overflow-hidden shadow-lg shadow-[#7928CA]/20">
-                      <span className="absolute inset-0 bg-gradient-to-r from-[#7928CA] to-[#00C6FF] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-                      <span className="relative z-10 flex items-center gap-2">
-                        Join Us <FaRocket className="group-hover:translate-x-1 transition-transform" />
-                      </span>
-                    </Link>
-                    
-                    <Link href="/media/gallery" className="group relative px-8 py-4 bg-white/5 backdrop-blur-sm text-white font-bold rounded-lg overflow-hidden border border-white/10 hover:border-white/30 transition-colors shadow-lg shadow-black/5">
-                      <span className="relative z-10 flex items-center gap-2">
-                        View Gallery <FaAngleRight className="group-hover:translate-x-1 transition-transform" />
-                      </span>
-                    </Link>
+        <div className="container mx-auto px-4 py-16 md:py-24 lg:py-32 relative z-10">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
+            <motion.div 
+              className="flex-1 max-w-2xl"
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <div className="inline-block mb-4 px-4 py-1 bg-[#0ed632]/10 rounded-full">
+                <p className="text-sm font-medium text-[#0ed632]">Median Gaming Website</p>
+              </div>
+              
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-800 mb-6 leading-tight">
+                <span className="text-[#0ed632] block">Unite.</span> 
+                <span className="text-gray-700 block">Play.</span> 
+                <span className="text-[#0ed632] block">Dominate.</span>
+              </h1>
+              
+              <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-lg">
+                Join Median, the ultimate gaming community where players connect, compete, and conquer together.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link 
+                  href="/application" 
+                  className="inline-flex items-center justify-center px-8 py-4 bg-[#0ed632] text-white font-semibold rounded-xl shadow-lg hover:bg-[#0bc02c] transform hover:translate-y-[-2px] transition-all duration-300"
+                >
+                  Join the Team
+                  <FaChevronRight className="ml-2" />
+                </Link>
+                
+                <a 
+                  href="https://discord.gg/medianst" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center px-8 py-4 bg-white text-[#4752c4] border-2 border-[#4752c4] font-semibold rounded-xl hover:bg-[#4752c4]/5 transform hover:translate-y-[-2px] transition-all duration-300"
+                >
+                  <FaDiscord className="mr-2 text-xl" />
+                  Discord Server
+                </a>
+              </div>
+              
+              <div className="mt-10 flex items-center gap-6">
+                <div className="flex -space-x-2">
+                  {loading ? (
+                    // Loading placeholders for avatars
+                    [1, 2, 3, 4].map((i) => (
+                      <div key={i} className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 border-2 border-white overflow-hidden animate-pulse"></div>
+                    ))
+                  ) : (
+                    // Show up to 4 active members' avatars
+                    discordStats?.members?.slice(0, 4).map((member, i) => (
+                      <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden">
+                        <Image 
+                          src={member.avatar_url || '/default-avatar.png'} 
+                          alt={member.username}
+                          width={40}
+                          height={40}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ))
+                  )}
+                </div>
+                <p className="text-gray-600">
+                  {loading ? (
+                    <span className="inline-block w-24 h-5 bg-gray-200 rounded animate-pulse"></span>
+                  ) : (
+                    <>{discordStats?.approximate_member_count || '2,500'}+ gamers already joined</>
+                  )}
+                </p>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section className="py-20 md:py-28">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row gap-16 items-center">
+            <motion.div 
+              className="flex-1 order-2 md:order-1"
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+            >
+              <div className="relative">
+                <div className="absolute -top-4 -left-4 w-32 h-32 bg-[#0ed632]/10 rounded-full blur-md"></div>
+                <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-[#0ed632]/10 rounded-full blur-md"></div>
+                
+                <div className="relative grid grid-cols-2 gap-4">
+                  <div className="h-60 overflow-hidden rounded-2xl shadow-lg transform rotate-2">
+                    <div className="w-full h-full bg-gray-200"></div>
+                  </div>
+                  <div className="h-60 overflow-hidden rounded-2xl shadow-lg transform -rotate-2 translate-y-10">
+                    <div className="w-full h-full bg-gray-200"></div>
+                  </div>
+                  <div className="h-60 overflow-hidden rounded-2xl shadow-lg transform -rotate-3 -translate-y-6">
+                    <div className="w-full h-full bg-gray-200"></div>
+                  </div>
+                  <div className="h-60 overflow-hidden rounded-2xl shadow-lg transform rotate-3">
+                    <div className="w-full h-full bg-gray-200"></div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+            
+            <motion.div 
+              className="flex-1 order-1 md:order-2"
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+            >
+              <div className="inline-block mb-4 px-4 py-1 bg-[#0ed632]/10 rounded-full">
+                <p className="text-sm font-medium text-[#0ed632]">About Us</p>
+              </div>
+              
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 mb-6">
+                What is <span className="text-[#0ed632]">Median</span>?
+              </h2>
+              
+              <p className="text-lg text-gray-600 mb-8">
+                Median is more than just a gaming community — it's a thriving ecosystem where gamers of all skill levels come together to connect, compete, and grow.
+              </p>
+              
+              <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-[#0ed632]/10 flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-6 h-6 text-[#0ed632]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-800 mb-2">Community First</h3>
+                    <p className="text-gray-600">
+                      We believe gaming is better together. Our community values respect, inclusion, and positive engagement above all else.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-[#0ed632]/10 flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-6 h-6 text-[#0ed632]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-800 mb-2">Skill Development</h3>
+                    <p className="text-gray-600">
+                      From casual players to competitive teams, we provide resources and support to help you improve your gaming skills.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-[#0ed632]/10 flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-6 h-6 text-[#0ed632]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-800 mb-2">Beyond Gaming</h3>
+                    <p className="text-gray-600">
+                      Median is about building real connections that extend beyond the screen, creating friendships that last.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Discord Stats Section */}
+      <section className="py-20 md:py-28 bg-gradient-to-br from-[#5865F2]/5 via-white to-white">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col lg:flex-row items-center gap-16">
+            <motion.div 
+              className="flex-1"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <div className="inline-block mb-4 px-4 py-1 bg-[#5865F2]/10 rounded-full">
+                <p className="text-sm font-medium text-[#5865F2]">Join Our Team</p>
+              </div>
+              
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 mb-6">
+                Connect with our <span className="text-[#0ed632]">Discord</span> Team
+              </h2>
+              
+              <p className="text-lg text-gray-600 mb-8">
+                Join thousands of gamers in our active Discord server. Connect, chat, and play together in a welcoming environment built for gamers of all levels.
+              </p>
+              
+              <div className="grid grid-cols-2 gap-6 mb-10">
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-gray-500 font-medium">Total Members</p>
+                    <FaUsers className="text-[#0ed632] text-xl" />
+                  </div>
+                  <div className="text-4xl font-bold text-gray-800">
+                    {loading ? (
+                      <div className="animate-pulse h-10 w-28 bg-gray-200 rounded"></div>
+                    ) : (
+                      <div className="flex items-end">
+                        <span>{discordStats?.approximate_member_count.toLocaleString() || "--"}</span>
+                        <span className="text-sm text-[#0ed632] ml-2 mb-1">+12% this month</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-gray-500 font-medium">Online Now</p>
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 bg-green-500 rounded-full mr-1 animate-pulse"></div>
+                      <p className="text-green-500 font-medium">Live</p>
+                    </div>
+                  </div>
+                  <div className="text-4xl font-bold text-gray-800">
+                    {loading ? (
+                      <div className="animate-pulse h-10 w-28 bg-gray-200 rounded"></div>
+                    ) : (
+                      discordStats?.approximate_presence_count.toLocaleString() || "--"
+                    )}
                   </div>
                 </div>
               </div>
               
-              {/* Right content - 3D visual element */}
-              <div className={`md:w-1/2 transform transition-all duration-1000 delay-300 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-                <div className="relative h-[400px] w-full">
-                  {/* Decorative elements */}
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-br from-[#7928CA] to-[#00C6FF] rounded-full blur-3xl opacity-20 animate-pulse"></div>
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 border border-white/10 rounded-full"></div>
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 border border-white/5 rounded-full animate-spin-slow"></div>
-                  
-                  {/* Central logo or image placeholder */}
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-gradient-to-br from-[#FF4D4D]/20 via-[#7928CA]/20 to-[#00C6FF]/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/10">
-                    <div className="w-40 h-40 relative">
-                      <div className="absolute inset-0 bg-[url('/Logos/MedianLogo.png')] bg-center bg-contain bg-no-repeat"></div>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <a 
+                  href="https://discord.gg/medianst" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center px-8 py-4 bg-[#5865F2] text-white font-semibold rounded-xl shadow-lg hover:bg-[#4752c4] transform hover:translate-y-[-2px] transition-all duration-300"
+                >
+                  <FaDiscord className="mr-2 text-xl" /> Join Our Discord
+                </a>
+                
+                <Link 
+                  href="/media/gallery" 
+                  className="inline-flex items-center justify-center px-8 py-4 bg-white text-gray-700 border-2 border-gray-200 font-semibold rounded-xl hover:bg-gray-50 transform hover:translate-y-[-2px] transition-all duration-300"
+                >
+                  Browse Gallery
+                  <FaChevronRight className="ml-2" />
+                </Link>
+              </div>
+            </motion.div>
+            
+            <motion.div 
+              className="flex-1"
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+            >
+              <div className="relative">
+                <div className="absolute -top-6 -right-6 w-full h-full bg-[#0ed632]/10 rounded-2xl"></div>
+                
+                <div className="relative bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
+                  <div className="bg-[#5865F2] p-6">
+                    <div className="flex items-center">
+                      <FaDiscord className="text-white text-3xl mr-3" />
+                      <h3 className="text-2xl font-bold text-white">
+                        {loading ? "Loading..." : (discordStats?.name || "Discord Server")}
+                      </h3>
                     </div>
                   </div>
                   
-                  {/* Floating platform icons with animation */}
-                  <div className="absolute top-10 right-10 animate-float-slow">
-                    <SiSteam className="text-white text-3xl hover:text-[#7928CA] transition-colors cursor-pointer" />
-                  </div>
-                  <div className="absolute bottom-20 right-20 animate-float-medium">
-                    <SiEpicgames className="text-white text-3xl hover:text-[#7928CA] transition-colors cursor-pointer" />
-                  </div>
-                  <div className="absolute bottom-40 left-20 animate-float-fast">
-                    <SiTwitch className="text-white text-3xl hover:text-[#7928CA] transition-colors cursor-pointer" />
+                  <div className="p-8">
+                    <div className="flex justify-between items-center mb-6">
+                      <div className="flex items-center">
+                        {loading ? (
+                          <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse"></div>
+                        ) : discordStats?.icon_url ? (
+                          <Image 
+                            src={discordStats.icon_url} 
+                            alt={discordStats?.name || "Discord Server"}
+                            width={40}
+                            height={40}
+                            className="w-10 h-10 rounded-full"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-[#5865F2] flex items-center justify-center text-white font-bold text-lg">
+                            {discordStats?.name?.charAt(0) || "D"}
+                          </div>
+                        )}
+                        <div className="ml-3">
+                          {loading ? (
+                            <div className="h-5 bg-gray-200 rounded w-32 animate-pulse mb-1"></div>
+                          ) : (
+                            <p className="font-bold text-gray-800">{discordStats?.name || "Discord Server"}</p>
+                          )}
+                          <p className="text-sm text-gray-500">Gaming Community</p>
+                        </div>
+                      </div>
+                      <div className="bg-[#0ed632]/10 px-3 py-1 rounded-full">
+                        <p className="text-xs font-medium text-[#0ed632]">VERIFIED</p>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-4 mb-8">
+                    </div>
+                    
+                    <div className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h4 className="text-lg font-semibold text-gray-800">Active Members</h4>
+                        {!loading && discordStats?.members && (
+                          <div className="bg-[#0ed632]/10 px-3 py-1 rounded-full">
+                            <p className="text-[#0ed632] text-sm font-medium">
+                              {discordStats.members.length} Online
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {loading ? (
+                        <div className="space-y-4">
+                          {[1, 2, 3, 4].map((i) => (
+                            <div key={i} className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse"></div>
+                              <div className="flex-1">
+                                <div className="h-4 bg-gray-200 rounded w-24 mb-2 animate-pulse"></div>
+                                <div className="h-3 bg-gray-200 rounded w-32 animate-pulse"></div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="space-y-4 max-h-[240px] overflow-y-auto custom-scrollbar">
+                          {discordStats?.members?.map((member) => (
+                            <div key={member.id} className="flex items-center gap-3">
+                              {member.avatar_url ? (
+                                <Image
+                                  src={member.avatar_url}
+                                  alt={member.username}
+                                  width={40}
+                                  height={40}
+                                  className="rounded-full"
+                                />
+                              ) : (
+                                <div className="w-10 h-10 rounded-full bg-[#5865F2] flex items-center justify-center">
+                                  <span className="text-white font-medium">
+                                    {member.username.charAt(0).toUpperCase()}
+                                  </span>
+                                </div>
+                              )}
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <p className="font-medium text-gray-800">{member.username}</p>
+                                  <div className={`w-2 h-2 rounded-full ${
+                                    member.status === "online" ? "bg-green-500" : 
+                                    member.status === "idle" ? "bg-yellow-500" : 
+                                    member.status === "dnd" ? "bg-red-500" : "bg-gray-400"
+                                  }`}></div>
+                                </div>
+                                <p className="text-sm text-gray-500">
+                                  {member.game ? `Playing ${member.game.name}` : 
+                                   member.status === "online" ? "Online" :
+                                   member.status === "idle" ? "Idle" :
+                                   member.status === "dnd" ? "Do Not Disturb" : "Offline"}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      <div className="mt-6 pt-6 border-t border-gray-100 flex items-center justify-center gap-2 text-[#5865F2] font-medium">
+                        <span>© 2025 Median. All rights reserved.</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
-        
-        {/* Scroll indicator */}
-        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center">
-          <span className="text-white/50 text-sm mb-2">Scroll to explore</span>
-          <FaChevronDown className="text-white/50 animate-bounce" />
-        </div>
-      </div>
+      </section>
 
-      {/* Featured Content Section with Interactive Cards */}
-      <div className="bg-gradient-to-b from-[#050A18] to-[#0B1933] py-24">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center mb-16">
-            <div className="relative mb-8 md:mb-0">
-              <h2 className="text-4xl font-bold text-white">
-                Featured <span className="relative">
-                  <span className="absolute -inset-1 bg-gradient-to-r from-[#FF4D4D] via-[#7928CA] to-[#00C6FF] blur-lg opacity-30"></span>
-                  <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D4D] via-[#7928CA] to-[#00C6FF]">Content</span>
-                </span>
-              </h2>
-              <div className="absolute -bottom-2 left-0 w-20 h-1 bg-gradient-to-r from-[#FF4D4D] to-[#7928CA]"></div>
-            </div>
-            
-            <div className="flex space-x-4">
-              <button 
-                onClick={() => setActiveTab('tournaments')} 
-                className={`px-4 py-2 rounded-lg transition-all duration-300 ${activeTab === 'tournaments' ? 'bg-gradient-to-r from-[#FF4D4D]/20 to-[#7928CA]/20 text-white border border-[#7928CA]/30' : 'text-gray-400 hover:text-white'}`}
-              >
-                Tournaments
-              </button>
-              <button 
-                onClick={() => setActiveTab('leaderboards')} 
-                className={`px-4 py-2 rounded-lg transition-all duration-300 ${activeTab === 'leaderboards' ? 'bg-gradient-to-r from-[#FF4D4D]/20 to-[#7928CA]/20 text-white border border-[#7928CA]/30' : 'text-gray-400 hover:text-white'}`}
-              >
-                Leaderboards
-              </button>
-              <button 
-                onClick={() => setActiveTab('events')} 
-                className={`px-4 py-2 rounded-lg transition-all duration-300 ${activeTab === 'events' ? 'bg-gradient-to-r from-[#FF4D4D]/20 to-[#7928CA]/20 text-white border border-[#7928CA]/30' : 'text-gray-400 hover:text-white'}`}
-              >
-                Events
-              </button>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Featured Item 1 - Glassmorphism Card */}
-            <div className="group relative bg-white/5 backdrop-blur-md rounded-xl overflow-hidden transition-all hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(121,40,202,0.3)] duration-300 border border-white/10">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#FF4D4D]/10 via-[#7928CA]/10 to-[#00C6FF]/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              
-              <div className="h-56 flex items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#050A18] to-[#0B1933]"></div>
-                <div className="absolute inset-0 bg-[url('/images/grid.svg')] bg-center opacity-10"></div>
-                
-                {/* Animated icon with glow effect */}
-                <div className="relative z-10 group-hover:scale-110 transition-transform duration-500">
-                  <div className="absolute -inset-8 bg-[#7928CA] rounded-full blur-2xl opacity-0 group-hover:opacity-20 transition-opacity"></div>
-                  <FaGamepad className="text-[#FF4D4D] text-6xl relative z-10" />
-                </div>
-              </div>
-              
-              <div className="p-8 relative">
-                <div className="absolute top-0 right-0 h-20 w-20 bg-gradient-to-bl from-[#7928CA]/10 to-transparent rounded-bl-full"></div>
-                
-                <div className="flex items-center mb-4">
-                  <div className="w-1 h-6 bg-gradient-to-b from-[#FF4D4D] to-[#7928CA] mr-3"></div>
-                  <h3 className="text-2xl font-bold text-white">Latest Tournaments</h3>
-                </div>
-                
-                <p className="text-gray-300 mb-6 leading-relaxed">Experience competitive gaming at its finest. Join our tournaments and compete for glory and exclusive rewards.</p>
-                
-                <Link href="#" className="inline-flex items-center text-[#7928CA] font-semibold hover:text-[#FF4D4D] transition-colors">
-                  View Tournaments <FaAngleRight className="ml-2 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </div>
-            </div>
-            
-            {/* Featured Item 2 - Glassmorphism Card */}
-            <div className="group relative bg-white/5 backdrop-blur-md rounded-xl overflow-hidden transition-all hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(121,40,202,0.3)] duration-300 border border-white/10">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#FF4D4D]/10 via-[#7928CA]/10 to-[#00C6FF]/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              
-              <div className="h-56 flex items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#050A18] to-[#0B1933]"></div>
-                <div className="absolute inset-0 bg-[url('/images/grid.svg')] bg-center opacity-10"></div>
-                
-                {/* Animated icon with glow effect */}
-                <div className="relative z-10 group-hover:scale-110 transition-transform duration-500">
-                  <div className="absolute -inset-8 bg-[#7928CA] rounded-full blur-2xl opacity-0 group-hover:opacity-20 transition-opacity"></div>
-                  <FaTrophy className="text-[#7928CA] text-6xl relative z-10" />
-                </div>
-              </div>
-              
-              <div className="p-8 relative">
-                <div className="absolute top-0 right-0 h-20 w-20 bg-gradient-to-bl from-[#7928CA]/10 to-transparent rounded-bl-full"></div>
-                
-                <div className="flex items-center mb-4">
-                  <div className="w-1 h-6 bg-gradient-to-b from-[#7928CA] to-[#00C6FF] mr-3"></div>
-                  <h3 className="text-2xl font-bold text-white">Leaderboards</h3>
-                </div>
-                
-                <p className="text-gray-300 mb-6 leading-relaxed">Track your progress and compete with the best. Our real-time leaderboards showcase the elite players across all games.</p>
-                
-                <Link href="#" className="inline-flex items-center text-[#7928CA] font-semibold hover:text-[#00C6FF] transition-colors">
-                  View Leaderboards <FaAngleRight className="ml-2 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </div>
-            </div>
-            
-            {/* Featured Item 3 - Glassmorphism Card */}
-            <div className="group relative bg-white/5 backdrop-blur-md rounded-xl overflow-hidden transition-all hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(121,40,202,0.3)] duration-300 border border-white/10">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#FF4D4D]/10 via-[#7928CA]/10 to-[#00C6FF]/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              
-              <div className="h-56 flex items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#050A18] to-[#0B1933]"></div>
-                <div className="absolute inset-0 bg-[url('/images/grid.svg')] bg-center opacity-10"></div>
-                
-                {/* Animated icon with glow effect */}
-                <div className="relative z-10 group-hover:scale-110 transition-transform duration-500">
-                  <div className="absolute -inset-8 bg-[#00C6FF] rounded-full blur-2xl opacity-0 group-hover:opacity-20 transition-opacity"></div>
-                  <FaUsers className="text-[#00C6FF] text-6xl relative z-10" />
-                </div>
-              </div>
-              
-              <div className="p-8 relative">
-                <div className="absolute top-0 right-0 h-20 w-20 bg-gradient-to-bl from-[#00C6FF]/10 to-transparent rounded-bl-full"></div>
-                
-                <div className="flex items-center mb-4">
-                  <div className="w-1 h-6 bg-gradient-to-b from-[#00C6FF] to-[#7928CA] mr-3"></div>
-                  <h3 className="text-2xl font-bold text-white">Community Events</h3>
-                </div>
-                
-                <p className="text-gray-300 mb-6 leading-relaxed">Connect with fellow gamers at our regular events. From watch parties to casual gaming sessions, there's always something happening.</p>
-                
-                <Link href="#" className="inline-flex items-center text-[#7928CA] font-semibold hover:text-[#00C6FF] transition-colors">
-                  View Events <FaAngleRight className="ml-2 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </div>
-            </div>
-          </div>
+      {/* Join Now Section */}
+      <section className="py-20 md:py-28 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-[#0ed632]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#5865F2]/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
         </div>
-      </div>
-      
-      {/* Game Categories - Futuristic Hexagon Style */}
-      <div className="py-24 bg-[#050A18] relative overflow-hidden">
-        {/* Background decorative elements */}
-        <div className="absolute inset-0 bg-[url('/images/grid.svg')] bg-center opacity-5"></div>
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF4D4D] via-transparent to-[#00C6FF] opacity-30"></div>
-        
-        {/* Decorative orbs */}
-        <div className="absolute top-20 left-20 w-40 h-40 bg-[#7928CA] rounded-full blur-[100px] opacity-10"></div>
-        <div className="absolute bottom-20 right-20 w-60 h-60 bg-[#FF4D4D] rounded-full blur-[120px] opacity-5"></div>
         
         <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white inline-block relative">
-              Popular <span className="relative">
-                <span className="absolute -inset-1 bg-gradient-to-r from-[#FF4D4D] via-[#7928CA] to-[#00C6FF] blur-lg opacity-30"></span>
-                <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D4D] via-[#7928CA] to-[#00C6FF]">Categories</span>
-              </span>
+          <motion.div 
+            className="max-w-3xl mx-auto text-center mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="inline-block mb-4 px-4 py-1 bg-[#0ed632]/10 rounded-full">
+              <p className="text-sm font-medium text-[#0ed632]">Join Our Community</p>
+            </div>
+            
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 mb-6">
+              Ready to <span className="text-[#0ed632]">Level Up</span> Your Gaming Experience?
             </h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-[#FF4D4D] to-[#7928CA] mx-auto mt-4"></div>
-            <p className="text-gray-400 mt-6 max-w-2xl mx-auto">Explore our diverse range of gaming categories and find your perfect match</p>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { name: 'FPS', icon: '🎯', color: 'from-[#FF4D4D]', toColor: 'to-[#FF8080]' },
-              { name: 'MOBA', icon: '🏆', color: 'from-[#7928CA]', toColor: 'to-[#A15EDB]' },
-              { name: 'Battle Royale', icon: '🔫', color: 'from-[#00C6FF]', toColor: 'to-[#92E0FF]' },
-              { name: 'RPG', icon: '⚔️', color: 'from-[#FF4D4D]', toColor: 'to-[#7928CA]' },
-              { name: 'Racing', icon: '🏎️', color: 'from-[#7928CA]', toColor: 'to-[#00C6FF]' },
-              { name: 'Sports', icon: '⚽', color: 'from-[#00C6FF]', toColor: 'to-[#FF4D4D]' },
-              { name: 'Strategy', icon: '🧠', color: 'from-[#FF4D4D]', toColor: 'to-[#00C6FF]' },
-              { name: 'Fighting', icon: '👊', color: 'from-[#7928CA]', toColor: 'to-[#FF4D4D]' }
-            ].map((category, index) => (
-              <div 
-                key={index} 
-                className={`group relative bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-white/30 transition-all duration-300 cursor-pointer overflow-hidden transform hover:scale-105 hover:shadow-lg hover:shadow-${category.color.replace('from-', '')}/20`}
+            
+            <p className="text-lg text-gray-600">
+              Become part of our growing community today. It only takes a minute to get started!
+            </p>
+          </motion.div>
+
+          <motion.div 
+            className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, staggerChildren: 0.1 }}
+          >
+            <motion.div
+              whileHover={{ y: -8 }}
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              className="group"
+            >
+              <a 
+                href="/application" 
+                className="bg-white border-2 border-gray-100 rounded-2xl p-8 text-center shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center h-full group-hover:border-[#0ed632]/20"
               >
-                <div className={`absolute inset-0 bg-gradient-to-br ${category.color} ${category.toColor} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}></div>
-                
-                {/* Hexagon icon container */}
-                <div className="relative mb-6 flex justify-center">
-                  <div className={`w-16 h-16 flex items-center justify-center relative`}>
-                    <div className={`absolute inset-0 bg-gradient-to-br ${category.color} ${category.toColor} opacity-10 rounded-full transform group-hover:scale-110 transition-all duration-500`}></div>
-                    <div className="text-4xl group-hover:scale-110 transition-transform duration-500 z-10">{category.icon}</div>
-                  </div>
+                <div className="w-20 h-20 bg-[#0ed632]/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#0ed632]/20 transition-colors duration-300">
+                  <FaUserPlus className="text-[#0ed632] text-3xl" />
                 </div>
-                
-                <div className="text-center">
-                  <h3 className={`text-xl font-bold text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r ${category.color} ${category.toColor} transition-colors duration-300`}>
-                    {category.name}
-                  </h3>
-                  <p className="text-gray-400 mt-2 group-hover:text-gray-300 transition-colors text-sm">
-                    Browse Games
-                  </p>
-                </div>
-                
-                {/* Bottom accent */}
-                <div className={`absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r ${category.color} ${category.toColor} transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300`}></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-      
-      {/* Stats Counter Section - Animated */}
-      <div className="bg-[#0B1933] py-24 relative overflow-hidden">
-        {/* Decorative elements */}
-        <div className="absolute inset-0 bg-[url('/images/grid.svg')] bg-center opacity-5"></div>
-        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-        <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-        
-        {/* Glowing orbs */}
-        <div className="absolute top-1/3 left-10 w-32 h-32 bg-[#FF4D4D] rounded-full blur-[80px] opacity-10 animate-pulse-slow"></div>
-        <div className="absolute bottom-1/3 right-10 w-32 h-32 bg-[#00C6FF] rounded-full blur-[80px] opacity-10 animate-pulse-slow"></div>
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {/* Counter 1 */}
-            <div className="group relative bg-white/5 backdrop-blur-sm p-8 rounded-xl border border-white/10 hover:border-[#FF4D4D]/30 transition-all duration-300 text-center overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#FF4D4D]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              
-              <div className="relative">
-                <div className={`text-5xl font-black mb-3 ${animateCount ? 'animate-counter' : ''}`}>
-                  <span className="text-white">10K</span>
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D4D] to-[#7928CA]">+</span>
-                </div>
-                <div className="w-12 h-1 bg-gradient-to-r from-[#FF4D4D] to-[#7928CA] mx-auto mb-3 transform origin-left group-hover:scale-x-125 transition-transform"></div>
-                <p className="text-gray-300 font-medium">Active Players</p>
-              </div>
-            </div>
-            
-            {/* Counter 2 */}
-            <div className="group relative bg-white/5 backdrop-blur-sm p-8 rounded-xl border border-white/10 hover:border-[#7928CA]/30 transition-all duration-300 text-center overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#7928CA]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              
-              <div className="relative">
-                <div className={`text-5xl font-black mb-3 ${animateCount ? 'animate-counter' : ''}`}>
-                  <span className="text-white">250</span>
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#7928CA] to-[#00C6FF]">+</span>
-                </div>
-                <div className="w-12 h-1 bg-gradient-to-r from-[#7928CA] to-[#00C6FF] mx-auto mb-3 transform origin-left group-hover:scale-x-125 transition-transform"></div>
-                <p className="text-gray-300 font-medium">Tournaments</p>
-              </div>
-            </div>
-            
-            {/* Counter 3 */}
-            <div className="group relative bg-white/5 backdrop-blur-sm p-8 rounded-xl border border-white/10 hover:border-[#00C6FF]/30 transition-all duration-300 text-center overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#00C6FF]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              
-              <div className="relative">
-                <div className={`text-5xl font-black mb-3 ${animateCount ? 'animate-counter' : ''}`}>
-                  <span className="text-white">50</span>
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00C6FF] to-[#FF4D4D]">+</span>
-                </div>
-                <div className="w-12 h-1 bg-gradient-to-r from-[#00C6FF] to-[#FF4D4D] mx-auto mb-3 transform origin-left group-hover:scale-x-125 transition-transform"></div>
-                <p className="text-gray-300 font-medium">Game Titles</p>
-              </div>
-            </div>
-            
-            {/* Counter 4 */}
-            <div className="group relative bg-white/5 backdrop-blur-sm p-8 rounded-xl border border-white/10 hover:border-[#FF4D4D]/30 transition-all duration-300 text-center overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#FF4D4D]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              
-              <div className="relative">
-                <div className="text-5xl font-black mb-3">
-                  <span className="text-white">24</span>
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#7928CA] to-[#00C6FF]">/7</span>
-                </div>
-                <div className="w-12 h-1 bg-gradient-to-r from-[#7928CA] to-[#00C6FF] mx-auto mb-3 transform origin-left group-hover:scale-x-125 transition-transform"></div>
-                <p className="text-gray-300 font-medium">Support</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Community Section - Immersive Style */}
-      <div className="relative py-32 overflow-hidden bg-[#050A18]">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 bg-[url('/images/grid.svg')] bg-center opacity-5"></div>
-        
-        {/* Animated gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-radial from-[#0B1933]/80 to-[#050A18] opacity-80"></div>
-        
-        {/* Decorative elements */}
-        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#7928CA] rounded-full blur-[100px] opacity-10"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#FF4D4D] rounded-full blur-[100px] opacity-10"></div>
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-5xl mx-auto">
-            <div className="flex flex-col md:flex-row items-center gap-16">
-              {/* Left content */}
-              <div className="md:w-1/2 text-center md:text-left">
-                <div className="inline-block p-3 bg-white/5 backdrop-blur-sm rounded-full mb-8 border border-white/10">
-                  <div className="p-4 bg-gradient-to-br from-[#FF4D4D]/20 to-[#00C6FF]/20 rounded-full">
-                    <FaHeadset className="text-white text-4xl" />
-                  </div>
-                </div>
-                
-                <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-                  Join Our <span className="relative">
-                    <span className="absolute -inset-1 bg-gradient-to-r from-[#FF4D4D] via-[#7928CA] to-[#00C6FF] blur-lg opacity-30"></span>
-                    <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D4D] via-[#7928CA] to-[#00C6FF]">Gaming Community</span>
+                <h3 className="text-2xl font-bold text-gray-800 mb-4">Apply Now</h3>
+                <p className="text-gray-600 mb-8">Submit your application to join our gaming community and access exclusive features.</p>
+                <div className="mt-auto">
+                  <span className="inline-flex items-center justify-center px-6 py-3 bg-[#0ed632] text-white font-medium rounded-xl shadow-md group-hover:shadow-lg group-hover:bg-[#0bc02c] transition-all duration-300">
+                    Get Started <FaArrowRight className="ml-2 group-hover:translate-x-1 transition-transform duration-300" />
                   </span>
-                </h2>
-                
-                <p className="text-xl text-gray-300 mb-10 leading-relaxed">
-                  Connect with passionate gamers, participate in exclusive tournaments, and share your gaming experiences in our vibrant community.
-                </p>
-                
-                <div className="flex flex-wrap gap-6 mb-8 md:mb-0 justify-center md:justify-start">
-                  <Link href="/about" className="group relative px-8 py-4 bg-gradient-to-r from-[#FF4D4D] to-[#7928CA] text-white font-bold rounded-lg overflow-hidden shadow-lg shadow-[#7928CA]/20">
-                    <span className="absolute inset-0 bg-gradient-to-r from-[#7928CA] to-[#00C6FF] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-                    <span className="relative z-10 flex items-center gap-2">
-                      Join Now <FaRocket className="group-hover:translate-x-1 transition-transform" />
-                    </span>
-                  </Link>
                 </div>
-              </div>
-              
-              {/* Right content - Social Media Interactive Element */}
-              <div className="md:w-1/2">
-                <div className="relative bg-white/5 backdrop-blur-md p-8 rounded-2xl border border-white/10 shadow-xl">
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#FF4D4D]/5 via-[#7928CA]/5 to-[#00C6FF]/5 rounded-2xl"></div>
-                  
-                  <h3 className="text-2xl font-bold text-white mb-8 text-center">Connect With Us</h3>
-                  
-                  <div className="grid grid-cols-3 gap-6">
-                    {/* Discord */}
-                    <a href="#" className="group flex flex-col items-center p-4 bg-white/5 hover:bg-white/10 backdrop-blur-sm rounded-xl border border-white/10 transition-all duration-300 hover:scale-105">
-                      <div className="relative mb-3">
-                        <div className="absolute -inset-3 bg-[#7289DA] rounded-full blur-xl opacity-0 group-hover:opacity-20 transition-opacity"></div>
-                        <FaDiscord className="text-4xl text-[#7289DA] group-hover:scale-110 transition-transform" />
-                      </div>
-                      <span className="text-white font-medium">Discord</span>
-                      <span className="text-gray-400 text-sm mt-1">Join Server</span>
-                    </a>
-                    
-                    {/* TikTok */}
-                    <a href="#" className="group flex flex-col items-center p-4 bg-white/5 hover:bg-white/10 backdrop-blur-sm rounded-xl border border-white/10 transition-all duration-300 hover:scale-105">
-                      <div className="relative mb-3">
-                        <div className="absolute -inset-3 bg-[#FF0050] rounded-full blur-xl opacity-0 group-hover:opacity-20 transition-opacity"></div>
-                        <FaTiktok className="text-4xl text-white group-hover:scale-110 transition-transform" />
-                      </div>
-                      <span className="text-white font-medium">TikTok</span>
-                      <span className="text-gray-400 text-sm mt-1">Follow Us</span>
-                    </a>
-                    
-                    {/* YouTube */}
-                    <a href="#" className="group flex flex-col items-center p-4 bg-white/5 hover:bg-white/10 backdrop-blur-sm rounded-xl border border-white/10 transition-all duration-300 hover:scale-105">
-                      <div className="relative mb-3">
-                        <div className="absolute -inset-3 bg-[#FF0000] rounded-full blur-xl opacity-0 group-hover:opacity-20 transition-opacity"></div>
-                        <FaYoutube className="text-4xl text-[#FF0000] group-hover:scale-110 transition-transform" />
-                      </div>
-                      <span className="text-white font-medium">YouTube</span>
-                      <span className="text-gray-400 text-sm mt-1">Subscribe</span>
-                    </a>
-                  </div>
-                  
-                  <div className="mt-8 p-4 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
-                    <p className="text-gray-300 text-center">Join our community of over <span className="text-white font-bold">10,000+</span> gamers worldwide</p>
-                  </div>
+              </a>
+            </motion.div>
+            
+            <motion.div
+              whileHover={{ y: -8 }}
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              className="group"
+            >
+              <a 
+                href="https://discord.gg/medianst" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="bg-white border-2 border-gray-100 rounded-2xl p-8 text-center shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center h-full group-hover:border-[#5865F2]/20"
+              >
+                <div className="w-20 h-20 bg-[#5865F2]/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#5865F2]/20 transition-colors duration-300">
+                  <FaDiscord className="text-[#5865F2] text-3xl" />
                 </div>
-              </div>
-            </div>
-          </div>
+                <h3 className="text-2xl font-bold text-gray-800 mb-4">Join Discord</h3>
+                <p className="text-gray-600 mb-8">Connect with our community on Discord for voice chat, events, and gaming sessions.</p>
+                <div className="mt-auto">
+                  <span className="inline-flex items-center justify-center px-6 py-3 bg-[#5865F2] text-white font-medium rounded-xl shadow-md group-hover:shadow-lg group-hover:bg-[#4752c4] transition-all duration-300">
+                    Join Server <FaArrowRight className="ml-2 group-hover:translate-x-1 transition-transform duration-300" />
+                  </span>
+                </div>
+              </a>
+            </motion.div>
+            
+            <motion.div
+              whileHover={{ y: -8 }}
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              className="group"
+            >
+              <a 
+                href="https://steamcommunity.com/groups/medianst" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="bg-white border-2 border-gray-100 rounded-2xl p-8 text-center shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center h-full group-hover:border-[#171a21]/20"
+              >
+                <div className="w-20 h-20 bg-[#171a21]/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#171a21]/20 transition-colors duration-300">
+                  <FaSteam className="text-[#171a21] text-3xl" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-800 mb-4">Steam Group</h3>
+                <p className="text-gray-600 mb-8">Follow us on Steam for game events, tournaments, and community updates.</p>
+                <div className="mt-auto">
+                  <span className="inline-flex items-center justify-center px-6 py-3 bg-[#171a21] text-white font-medium rounded-xl shadow-md group-hover:shadow-lg group-hover:bg-black transition-all duration-300">
+                    Join Group <FaArrowRight className="ml-2 group-hover:translate-x-1 transition-transform duration-300" />
+                  </span>
+                </div>
+              </a>
+            </motion.div>
+          </motion.div>
         </div>
-        
-        {/* Bottom accent line */}
-        <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF4D4D] via-[#7928CA] to-[#00C6FF] opacity-50"></div>
-      </div>
-    </Layout>
+      </section>
+    </main>
+    <Footer />
+    </>
   );
 }
