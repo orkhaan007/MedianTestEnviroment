@@ -81,16 +81,6 @@ const Header = () => {
 
               <li>
                 <Link 
-                  href="/forms" 
-                  className="text-gray-600 hover:text-[#0ed632] font-medium transition-colors"
-                >
-                  Forms
-                </Link>
-              </li>
-              
-
-              <li>
-                <Link 
                   href="/showcase" 
                   className="flex items-center text-gray-600 hover:text-[#0ed632] font-medium transition-colors"
                 >

@@ -178,7 +178,7 @@ export default function ApplicationForm() {
                   value={formData.fullName}
                   onChange={handleChange}
                   className={`w-full px-4 py-2 border ${errors.fullName ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-[#0ed632]`}
-                  placeholder="Your Name and Age"
+                  placeholder="Your Name"
                 />
                 {errors.fullName && <p className="mt-1 text-sm text-red-600">{errors.fullName}</p>}
               </div>
@@ -193,7 +193,7 @@ export default function ApplicationForm() {
                   name="age"
                   value={formData.age}
                   onChange={handleChange}
-                  min="16"
+                  min="17"
                   className={`w-full px-4 py-2 border ${errors.age ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-[#0ed632]`}
                   placeholder="Your Age"
                 />

@@ -59,11 +59,11 @@ export default function AdminPage() {
         </div>
         
         <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">User Management</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4"><span className="text-red-500">IN PROGRESS</span> User Management</h2>
           <p className="text-gray-600 mb-4">
             View and manage user accounts, roles, and permissions.
           </p>
-          <button 
+          <button disabled={true}
             onClick={() => router.push("/admin/users")}
             className="px-4 py-2 bg-[#0ed632] text-white rounded-md hover:bg-[#0bc02c] transition-colors"
           >
